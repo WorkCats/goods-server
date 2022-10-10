@@ -1,0 +1,22 @@
+[package]
+name = "goods-server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.5.16"
+tokio = { version = "1.0", features = ["full"] }
+
+sqlx = { version = "0.6.2", features = [ "runtime-tokio-native-tls" , "sqlite","all-types","macros" ] }
+#时间
+chrono = {version = "0.4.19",features=["serde"]}
+#序列化
+serde = {version = "1.0.140",features=["derive"]}
+#鉴权
+jsonwebtoken = "8.1.1"
+
+serde_json = "1.0.82"
+
+tower-http = { version = "0.3.0", features = ["cors"] }

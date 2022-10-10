@@ -1,0 +1,104 @@
+use sqlx::{sqlite::SqliteConnection, Sqlite, Error};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize, sqlx::FromRow, Debug)]
+pub struct Good {
+    pub id: String,
+    pub name: String,
+    pub size: i64,
+    pub user_name: String
+}
+
+async fn create_good(connect: &mut SqliteConnection) {
+    let table = sqlx::query::<Sqlite>("CREATE TABLE IF NOT EXISTS goods(id text primary key,name text,size integer, user_name text)").execute(connect).await;
+    match table {
+        Ok(result) => {
+            println!("create goods: {:?}", result);
+        }
+        Err(err) => {
+            println!("create goods err message: {:?}", err);
+        }
+    }
+}
+
+pub async fn insert_good(connect: &mut SqliteConnection, good: Good) -> Result<bool, Error> {
+    create_good(connect).await;
+    let sql = sqlx::query::<Sqlite>("insert into goods (id,name,size,user_name) values ( $1,$2,$3,$4 )")
+        .bind(good.id)
+        .bind(good.name)
+        .bind(good.size)
+        .bind(good.user_name)
+        .execute(connect).await;
+    return match sql {
+        Ok(_) => {
+            Ok(true)
+        }
+        Err(err) => {
+            Err(err)
+        }
+    };
+}
+
+pub async fn update_good(connect: &mut SqliteConnection, good: Good) -> Result<bool, Error> {
+    create_good(connect).await;
+    let sql = sqlx::query::<Sqlite>("UPDATE goods SET name = $2 size = $3,user_name = size = $4 WHERE ID = $1;")
+        .bind(good.id)
+        .bind(good.name)
+        .bind(good.size)
+        .bind(good.user_name)
+        .execute(connect).await;
+    return match sql {
+        Ok(_) => {
+            Ok(true)
+        }
+        Err(err) => {
+            Err(err)
+        }
+    };
+}
+
+pub async fn select_good(connect: &mut SqliteConnection, name: String) {
+    create_good(connect).await;
+    let sql =
+        sqlx::query::<Sqlite>("SELECT * FROM goods WHERE NAME LIKE  name = $1")
+        .bind(name)
+        .execute(connect).await;
+    return match sql {
+        Ok(result) => {
+            println!("select goods: {:?}", result);
+        }
+        Err(err) => {
+            println!("select goods err message:{:?}", err);
+        }
+    };
+}
+
+pub async fn get_all_good(connect: &mut SqliteConnection) -> Option<Vec<Good>> {
+    create_good(connect).await;
+    let sql = sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods")
+        .fetch_all(connect).await;
+    match sql {
+        Ok(result) => {
+            Some(result)
+        }
+        Err(err) => {
+            println!("select goods err message:{:?}", err);
+            None
+        }
+    }
+}
+
+pub async fn delete_good(connect: &mut SqliteConnection, id: String) -> Result<bool, Error> {
+    create_good(connect).await;
+    let sql = sqlx::query::<Sqlite>("DELETE FROM goods WHERE ID = $1")
+        .bind(id)
+        .execute(connect).await;
+    return match sql {
+        Ok(_) => {
+            Ok(true)
+        }
+        Err(err) => {
+            Err(err)
+        }
+    };
+}
