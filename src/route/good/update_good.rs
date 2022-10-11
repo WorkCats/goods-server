@@ -1,56 +1,30 @@
-use axum::http::HeaderMap;
-use axum::Json;
+use axum::{http::HeaderMap, Json};
+
 use crate::claims::{claims_get_user};
 use crate::sql::good;
-use crate::sql::good::Good;
-use crate::sql::sqlite_util::sql_connect;
-use serde::{Deserialize, Serialize};
+use crate::sql::{
+    sqlite_util::sql_connect,
+    good::Good,
+};
+use crate::route::{
+    create_text_result_claims_err,
+    create_text_result_sql_err,
+    TEXT_RESULT_SQL_CONNECT_ERR,
+    TEXT_SUCCESS_RESULT,
+    TextResult,
+};
 
-#[derive(Serialize, Deserialize)]
-pub struct UpdateGoodResult {
-    errmsg: String,
-    errcode: i8,
-}
-
-pub async fn update_good(headers: HeaderMap, Json(good): Json<Good>) -> Json<UpdateGoodResult> {
+pub async fn update_good(headers: HeaderMap, Json(good): Json<Good>) -> Json<TextResult> {
     return Json(if let Some(mut conn) = sql_connect().await {
         let user = claims_get_user(headers, &mut conn).await;
         match user {
-            Ok(_) => {
-                match good::update_good(&mut conn, good).await {
-                    Ok(_) => {
-                        create_update_good_result(
-                            String::from(""),
-                            0,
-                        )
-                    }
-                    Err(err) => {
-                        create_update_good_result(
-                            err.to_string(),
-                            1,
-                        )
-                    }
-                }
+            Ok(_) => match good::update_good(&mut conn, good).await {
+                Ok(_) => TEXT_SUCCESS_RESULT.clone(),
+                Err(err) => create_text_result_sql_err(err)
             }
-            Err(errmsg) => {
-                create_update_good_result(
-                    errmsg,
-                    2,
-                )
-            }
+            Err(errmsg) => create_text_result_claims_err(errmsg)
         }
     } else {
-        create_update_good_result(
-            String::from("服务器 sql 连接出现问题"),
-            4,
-        )
+        TEXT_RESULT_SQL_CONNECT_ERR.clone()
     });
-}
-
-fn create_update_good_result(err_msg: String, errcode: i8) -> UpdateGoodResult {
-    let errmsg = err_msg.to_string();
-    return UpdateGoodResult {
-        errmsg,
-        errcode,
-    };
 }

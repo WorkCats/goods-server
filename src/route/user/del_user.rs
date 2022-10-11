@@ -1,56 +1,38 @@
-use axum::Json;
-use serde::{Deserialize, Serialize};
+use axum::{http::HeaderMap, Json};
+
 use crate::claims::claims_get_user;
-use crate::HeaderMap;
-use crate::sql::user::{delete_user};
-use crate::sql::sqlite_util::sql_connect;
+use crate::sql::{
+    user::delete_user,
+    sqlite_util::sql_connect,
+};
+use crate::route::{
+    user::UserName,
+    create_text_result_claims_err,
+    create_text_result_sql_err,
+    TEXT_RESULT_ADMINISTRATOR_ERRCODE,
+    TEXT_RESULT_SQL_CONNECT_ERR,
+    TEXT_SUCCESS_RESULT,
+    TextResult,
+};
 
-#[derive(Serialize, Deserialize)]
-pub struct UserName {
-    username: String,
-}
 
-#[derive(Serialize, Deserialize)]
-pub struct DelUserResult {
-    errmsg: String,
-    errcode: i8,
-}
-
-pub async fn del_user(headers: HeaderMap, Json(del_user): Json<UserName>) -> Json<DelUserResult> {
+pub async fn del_user(headers: HeaderMap, Json(del_user): Json<UserName>) -> Json<TextResult> {
     return Json(
         if let Some(mut conn) = sql_connect().await {
             match claims_get_user(headers, &mut conn).await {
-                Ok(login_user) => {
+                Ok(login_user) =>
                     if login_user.is_administrator {
                         match delete_user(&mut conn, del_user.username).await {
-                            Ok(_) => {
-                                create_del_user_result(String::from(""), 0)
-                            }
-                            Err(err) => {
-                                create_del_user_result(err.to_string(), 1)
-                            }
+                            Ok(_) => TEXT_SUCCESS_RESULT.clone(),
+                            Err(err) => create_text_result_sql_err(err)
                         }
                     } else {
-                        create_del_user_result(String::from("你不是管理员"), 2)
+                        TEXT_RESULT_ADMINISTRATOR_ERRCODE.clone()
                     }
-                }
 
-                Err(err) => {
-                    create_del_user_result(err.to_string(), 3)
-                }
+                Err(errmsg) => create_text_result_claims_err(errmsg)
             }
         } else {
-            create_del_user_result(String::from("狐雾气出现问题了"), 4)
+            TEXT_RESULT_SQL_CONNECT_ERR.clone()
         });
-}
-
-fn create_del_user_result(
-    err_msg: String,
-    errcode: i8,
-) -> DelUserResult {
-    let errmsg = err_msg.to_string();
-    return DelUserResult {
-        errmsg,
-        errcode,
-    };
 }

@@ -1,44 +1,28 @@
-use axum::http::HeaderMap;
-use axum::Json;
-use crate::claims::{claims_get_user};
-use crate::sql::good::{get_all_good, Good};
-use crate::sql::sqlite_util::sql_connect;
-use serde::{Deserialize, Serialize};
-use crate::route::good::NULL_GOOD_LIST;
+use axum::{http::HeaderMap, Json};
+use crate::claims::claims_get_user;
 
-#[derive(Serialize, Deserialize)]
-pub struct GoodList {
-    good_list: Vec<Good>,
-    errmsg: String,
-    errcode: i8,
-}
+use crate::sql::{
+    sqlite_util::sql_connect,
+    good::get_all_good,
+};
+use crate::route::good::{
+    create_good_list_result_claims_err,
+    create_good_list_result_sql_err,
+    create_good_list_success_result,
+    GOOD_LIST_RESULT_SQL_CONNECT_ERR,
+    GoodListResult,
+};
 
-
-pub async fn get_good_list(headers: HeaderMap) -> Json<GoodList> {
+pub async fn get_good_list(headers: HeaderMap) -> Json<GoodListResult> {
     return Json(if let Some(mut conn) = sql_connect().await {
-        let user = claims_get_user(headers, &mut conn).await;
-        match user {
-            Ok(_) => {
-                let good_list = get_all_good(&mut conn).await;
-                match good_list {
-                    Ok(good_list) => create_good_list_result(good_list, String::from(""), 0),
-                    Err(err) => create_good_list_result(NULL_GOOD_LIST, err.to_string(), 3)
-                }
+        match claims_get_user(headers, &mut conn).await {
+            Ok(_) => match get_all_good(&mut conn).await {
+                Ok(good_list) => create_good_list_success_result(good_list),
+                Err(err) => create_good_list_result_sql_err(err)
             }
-            Err(errmsg) => {
-                create_good_list_result(NULL_GOOD_LIST, errmsg, 2)
-            }
+            Err(errmsg) => create_good_list_result_claims_err(errmsg)
         }
     } else {
-        create_good_list_result(NULL_GOOD_LIST, String::from("狐雾气 SQLite 出现问题"), 1)
+        GOOD_LIST_RESULT_SQL_CONNECT_ERR.clone()
     });
-}
-
-fn create_good_list_result(good_list: Vec<Good>, err_msg: String, errcode: i8) -> GoodList {
-    let errmsg = err_msg.to_string();
-    return GoodList {
-        good_list,
-        errmsg,
-        errcode,
-    };
 }

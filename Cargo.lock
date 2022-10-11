@@ -474,6 +474,7 @@ dependencies = [
  "axum",
  "chrono",
  "jsonwebtoken",
+ "lazy_static",
  "serde",
  "serde_json",
  "sqlx",

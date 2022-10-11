@@ -1,51 +1,37 @@
-use axum::Json;
-use serde::{Deserialize, Serialize};
+use axum::{http::HeaderMap, Json};
 use crate::claims::claims_get_user;
-use crate::HeaderMap;
-use crate::sql::user::{insert_user, User};
-use crate::sql::sqlite_util::sql_connect;
+
+use crate::sql::{
+    user::{insert_user, User},
+    sqlite_util::sql_connect,
+};
+use crate::route::{
+    create_text_result_claims_err,
+    create_text_result_sql_err,
+    TEXT_RESULT_ADMINISTRATOR_ERRCODE,
+    TEXT_RESULT_SQL_CONNECT_ERR,
+    TEXT_SUCCESS_RESULT,
+    TextResult,
+};
 
 
-#[derive(Serialize, Deserialize)]
-pub struct SignupResult {
-    errmsg: String,
-    errcode: i8,
-}
-
-pub async fn signup(headers: HeaderMap, Json(signup_user): Json<User>) -> Json<SignupResult> {
+pub async fn signup(headers: HeaderMap, Json(signup_user): Json<User>) -> Json<TextResult> {
     return Json(if let Some(mut conn) = sql_connect().await {
         match claims_get_user(headers, &mut conn).await {
-            Ok(login_user) => {
+            Ok(login_user) =>
                 if login_user.is_administrator {
                     match insert_user(&mut conn, signup_user).await {
-                        Ok(_) => {
-                            create_signup_result(String::from(""), 0)
-                        }
-                        Err(err) => {
-                            create_signup_result(err.to_string(), 1)
-                        }
+                        Ok(_) => TEXT_SUCCESS_RESULT.clone(),
+
+                        Err(err) => create_text_result_sql_err(err)
                     }
                 } else {
-                    create_signup_result(String::from("你不是管理员"), 2)
+                    TEXT_RESULT_ADMINISTRATOR_ERRCODE.clone()
                 }
-            }
 
-            Err(err) => {
-                create_signup_result(err.to_string(), 3)
-            }
+            Err(errmsg) => create_text_result_claims_err(errmsg)
         }
     } else {
-        create_signup_result(String::from("狐雾气出现问题了"), 4)
+        TEXT_RESULT_SQL_CONNECT_ERR.clone()
     });
-}
-
-fn create_signup_result(
-    err_msg: String,
-    errcode: i8,
-) -> SignupResult {
-    let errmsg = err_msg.to_string();
-    return SignupResult {
-        errmsg,
-        errcode,
-    };
 }

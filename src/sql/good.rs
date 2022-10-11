@@ -1,7 +1,7 @@
 use sqlx::{sqlite::SqliteConnection, Sqlite, Error};
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, sqlx::FromRow, Debug)]
+#[derive(Deserialize, Serialize, sqlx::FromRow, Clone)]
 pub struct Good {
     pub id: String,
     pub name: String,

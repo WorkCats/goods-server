@@ -2,11 +2,13 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use axum::Json;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
-use crate::sql::user::{get_user};
 
-use crate::claims::Claims;
 use crate::data::DECODING_KEY;
-use crate::sql::sqlite_util::sql_connect;
+use crate::claims::Claims;
+use crate::sql::{
+    sqlite_util::sql_connect,
+    user::get_user,
+};
 
 #[derive(Serialize, Deserialize)]
 pub struct LoginUser {
@@ -14,7 +16,7 @@ pub struct LoginUser {
     pub auto_login: bool,
     // 可选。标题 (令牌指向的人)
     pub username: String,
-    pub password: String
+    pub password: String,
 }
 
 impl Clone for LoginUser {
@@ -22,7 +24,7 @@ impl Clone for LoginUser {
         LoginUser {
             username: (self.username).parse().unwrap(),
             password: (*self.password).parse().unwrap(),
-            auto_login: self.auto_login
+            auto_login: self.auto_login,
         }
     }
 }
@@ -31,12 +33,11 @@ impl Clone for LoginUser {
 pub struct UserResult {
     token: String,
     errmsg: String,
-    errcode: i8
+    errcode: i8,
 }
 
 
 pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
-
     return Json(if let Some(mut conn) = sql_connect().await {
         // clone 对应用户
         let clone_user = login_user.clone();
@@ -51,11 +52,11 @@ pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
                 let username = clone_user.username;
                 let password = clone_user.password;
                 let auto_login = clone_user.auto_login;
-                let claims = Claims{
+                let claims = Claims {
                     exp,
                     username,
                     password,
-                    auto_login
+                    auto_login,
                 };
 
                 let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(DECODING_KEY.as_ref()));
@@ -77,7 +78,7 @@ pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
         }
     } else {
         create_user_result("".to_string(), "狐雾气出现问题了", 3)
-    })
+    });
 }
 
 
@@ -87,5 +88,5 @@ fn create_user_result(token: String, err_msg: &str, errcode: i8) -> UserResult {
         token,
         errmsg,
         errcode,
-    }
+    };
 }
