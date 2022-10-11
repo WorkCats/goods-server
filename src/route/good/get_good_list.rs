@@ -1,11 +1,12 @@
 use axum::http::HeaderMap;
+use axum::Json;
 use crate::claims::{claims_get_user};
 use crate::sql::good::{get_all_good, Good};
 use crate::sql::sqlite_util::sql_connect;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-struct GoodList {
+pub struct GoodList {
     good_list: Vec<Good>,
     errmsg: String,
     errcode: i8,
@@ -13,9 +14,8 @@ struct GoodList {
 
 const NULL_LIST: Vec<Good> = Vec::new();
 
-pub(crate) async fn get_good_list(headers: HeaderMap) -> String {
-    let json: Option<String>;
-    json = if let Some(mut conn) = sql_connect().await {
+pub async fn get_good_list(headers: HeaderMap) -> Json<GoodList> {
+    let good_list = if let Some(mut conn) = sql_connect().await {
         let user = claims_get_user(headers, &mut conn).await;
         match user {
             Ok(_) => {
@@ -34,22 +34,14 @@ pub(crate) async fn get_good_list(headers: HeaderMap) -> String {
         create_good_list_result(NULL_LIST, String::from("狐雾气 SQLite 出现问题"), 1)
     };
 
-    return match json {
-        None => {
-            "{token = \"[]\", errmsg = \"解析出现问题\", errcode =\"4\"}".to_string()
-        }
-        Some(json) => {
-            json
-        }
-    };
+    return Json(good_list)
 }
 
-fn create_good_list_result(good_list: Vec<Good>, err_msg: String, errcode: i8) -> Option<String> {
+fn create_good_list_result(good_list: Vec<Good>, err_msg: String, errcode: i8) -> GoodList {
     let errmsg = err_msg.to_string();
-    let json = GoodList {
+    return GoodList {
         good_list,
         errmsg,
         errcode,
-    };
-    return serde_json::to_string(&json).ok();
+    }
 }

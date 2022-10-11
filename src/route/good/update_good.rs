@@ -7,13 +7,13 @@ use crate::sql::sqlite_util::sql_connect;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-struct updateGoodResult {
+pub struct UpdateGoodResult {
     errmsg: String,
     errcode: i8,
 }
 
-pub async fn update_good(headers: HeaderMap, Json(good): Json<Good>) -> String {
-    let json = if let Some(mut conn) = sql_connect().await {
+pub async fn update_good(headers: HeaderMap, Json(good): Json<Good>) -> Json<UpdateGoodResult> {
+    let update_good_result = if let Some(mut conn) = sql_connect().await {
         let user = claims_get_user(headers, &mut conn).await;
         match user {
             Ok(_) => {
@@ -46,21 +46,13 @@ pub async fn update_good(headers: HeaderMap, Json(good): Json<Good>) -> String {
         )
     };
 
-    return match json {
-        None => {
-            "{errmsg = \"解析出现问题\", errcode =\"3\"}".to_string()
-        }
-        Some(json) => {
-            json
-        }
-    };
+    return Json(update_good_result);
 }
 
-fn create_update_good_result(err_msg: String, errcode: i8) -> Option<String> {
+fn create_update_good_result(err_msg: String, errcode: i8) -> UpdateGoodResult {
     let errmsg = err_msg.to_string();
-    let json = updateGoodResult {
+    return UpdateGoodResult {
         errmsg,
         errcode,
     };
-    return serde_json::to_string(&json).ok();
 }

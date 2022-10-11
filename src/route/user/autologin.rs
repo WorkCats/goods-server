@@ -1,16 +1,17 @@
+
 use crate::claims::claims_get_autologin;
 use crate::HeaderMap;
 use serde::{Deserialize, Serialize};
+use axum::Json;
 
 #[derive(Serialize, Deserialize)]
-struct autologinResult {
+pub struct AutologinResult {
     autologin: bool,
     errmsg: String,
     errcode: i8,
 }
-pub async fn autologin(headers: HeaderMap) -> String {
-    let json: Option<String>;
-    json = match claims_get_autologin(headers).await {
+pub async fn autologin(headers: HeaderMap) -> Json<AutologinResult> {
+    let auto_login_result = match claims_get_autologin(headers).await {
         Ok(is_autologin) => {
             create_auto_login_result(
                 is_autologin,
@@ -26,23 +27,15 @@ pub async fn autologin(headers: HeaderMap) -> String {
             )
         }
     };
-    return match json {
-        None => {
-            "{autologin=\"false\",errmsg = \"解析出现问题\", errcode =\"3\"}".to_string()
-        }
-        Some(json) => {
-            json
-        }
-    };
+    return Json(auto_login_result)
 
 }
 
-fn create_auto_login_result(autologin: bool, err_msg: String, errcode: i8) -> Option<String> {
+fn create_auto_login_result(autologin: bool, err_msg: String, errcode: i8) -> AutologinResult {
     let errmsg = err_msg.to_string();
-    let json = autologinResult {
+    return AutologinResult {
         autologin,
         errmsg,
         errcode,
-    };
-    return serde_json::to_string(&json).ok();
+    }
 }

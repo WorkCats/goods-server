@@ -1,17 +1,18 @@
 use axum::http::HeaderMap;
+use axum::Json;
 use crate::claims::{claims_get_user};
 use crate::sql::good;
 use crate::sql::sqlite_util::sql_connect;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
-struct delGoodResult {
+pub struct DelGoodResult {
     errmsg: String,
     errcode: i8,
 }
 
-pub async fn del_good(headers: HeaderMap, good_name: String) -> String {
-    let json = if let Some(mut conn) = sql_connect().await {
+pub async fn del_good(headers: HeaderMap, good_name: String) -> Json<DelGoodResult> {
+    let del_good_result = if let Some(mut conn) = sql_connect().await {
         let user = claims_get_user(headers, &mut conn).await;
         match user {
             Ok(_) => {
@@ -44,21 +45,13 @@ pub async fn del_good(headers: HeaderMap, good_name: String) -> String {
         )
     };
 
-    return match json {
-        None => {
-            "{errmsg = \"解析出现问题\", errcode =\"3\"}".to_string()
-        }
-        Some(json) => {
-            json
-        }
-    };
+    return Json(del_good_result)
 }
 
-fn create_del_good_result(err_msg: String, errcode: i8) -> Option<String> {
+fn create_del_good_result(err_msg: String, errcode: i8) -> DelGoodResult {
     let errmsg = err_msg.to_string();
-    let json = delGoodResult {
+    return DelGoodResult {
         errmsg,
         errcode,
-    };
-    return serde_json::to_string(&json).ok();
+    }
 }

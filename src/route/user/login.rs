@@ -28,15 +28,15 @@ impl Clone for LoginUser {
 }
 
 #[derive(Serialize, Deserialize)]
-struct UserResult {
+pub struct UserResult {
     token: String,
     errmsg: String,
     errcode: i8
 }
 
 
-pub async fn login(Json(login_user): Json<LoginUser>) -> String {
-    let json: Option<String>;
+pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
+    let json: UserResult;
 
     json = if let Some(mut conn) = sql_connect().await {
         // clone 对应用户
@@ -79,25 +79,15 @@ pub async fn login(Json(login_user): Json<LoginUser>) -> String {
     } else {
         create_user_result("".to_string(), "狐雾气出现问题了", 3)
     };
-
-
-    return match json {
-        None => {
-            "{token = \"\", errmsg = \"解析出现问题\", errcode =\"5\"}".to_string()
-        }
-        Some(json) => {
-            json
-        }
-    };
+    return Json(json)
 }
 
 
-fn create_user_result(token: String, err_msg: &str, errcode: i8) -> Option<String> {
+fn create_user_result(token: String, err_msg: &str, errcode: i8) -> UserResult {
     let errmsg = err_msg.to_string();
-    let json = UserResult {
+    return UserResult {
         token,
         errmsg,
         errcode,
-    };
-    return serde_json::to_string(&json).ok();
+    }
 }
