@@ -6,17 +6,22 @@ use crate::sql::sqlite_util::sql_connect;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
+pub struct GoodName {
+    good_name: String
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct DelGoodResult {
     errmsg: String,
     errcode: i8,
 }
 
-pub async fn del_good(headers: HeaderMap, good_name: String) -> Json<DelGoodResult> {
+pub async fn del_good(headers: HeaderMap, Json(good): Json<GoodName>) -> Json<DelGoodResult> {
     let del_good_result = if let Some(mut conn) = sql_connect().await {
         let user = claims_get_user(headers, &mut conn).await;
         match user {
             Ok(_) => {
-                match good::delete_good(&mut conn, good_name).await {
+                match good::delete_good(&mut conn, good.good_name).await {
                     Ok(_) => {
                         create_del_good_result(
                             String::from(""),

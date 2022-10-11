@@ -57,35 +57,20 @@ pub async fn update_good(connect: &mut SqliteConnection, good: Good) -> Result<b
     };
 }
 
-pub async fn select_good(connect: &mut SqliteConnection, name: String) {
+pub async fn select_good(connect: &mut SqliteConnection, name: String) -> Result<Vec<Good>, Error> {
     create_good(connect).await;
     let sql =
-        sqlx::query::<Sqlite>("SELECT * FROM goods WHERE NAME LIKE  name = $1")
+        sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE NAME LIKE  name = $1")
         .bind(name)
-        .execute(connect).await;
-    return match sql {
-        Ok(result) => {
-            println!("select goods: {:?}", result);
-        }
-        Err(err) => {
-            println!("select goods err message:{:?}", err);
-        }
-    };
+        .fetch_all(connect).await;
+    return sql
 }
 
-pub async fn get_all_good(connect: &mut SqliteConnection) -> Option<Vec<Good>> {
+pub async fn get_all_good(connect: &mut SqliteConnection) -> Result<Vec<Good>, Error> {
     create_good(connect).await;
     let sql = sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods")
         .fetch_all(connect).await;
-    match sql {
-        Ok(result) => {
-            Some(result)
-        }
-        Err(err) => {
-            println!("select goods err message:{:?}", err);
-            None
-        }
-    }
+    return sql
 }
 
 pub async fn delete_good(connect: &mut SqliteConnection, id: String) -> Result<bool, Error> {

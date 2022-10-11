@@ -1,4 +1,3 @@
-
 use crate::claims::claims_get_autologin;
 use crate::HeaderMap;
 use serde::{Deserialize, Serialize};
@@ -10,32 +9,36 @@ pub struct AutologinResult {
     errmsg: String,
     errcode: i8,
 }
+
 pub async fn autologin(headers: HeaderMap) -> Json<AutologinResult> {
     let auto_login_result = match claims_get_autologin(headers).await {
         Ok(is_autologin) => {
             create_auto_login_result(
                 is_autologin,
                 String::from(""),
-                0
+                0,
             )
         }
-        Err(err)=>{
+        Err(err) => {
             create_auto_login_result(
                 false,
                 err.to_string(),
-                1
+                1,
             )
         }
     };
-    return Json(auto_login_result)
-
+    return Json(auto_login_result);
 }
 
-fn create_auto_login_result(autologin: bool, err_msg: String, errcode: i8) -> AutologinResult {
+fn create_auto_login_result(
+    autologin: bool,
+    err_msg: String,
+    errcode: i8,
+) -> AutologinResult {
     let errmsg = err_msg.to_string();
     return AutologinResult {
         autologin,
         errmsg,
         errcode,
-    }
+    };
 }
