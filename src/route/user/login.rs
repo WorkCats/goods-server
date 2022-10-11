@@ -8,10 +8,18 @@ use crate::claims::Claims;
 use crate::data::DECODING_KEY;
 use crate::sql::sqlite_util::sql_connect;
 
+#[derive(Serialize, Deserialize)]
+pub struct LoginUser {
+    // 是否是自动登录
+    pub auto_login: bool,
+    // 可选。标题 (令牌指向的人)
+    pub username: String,
+    pub password: String
+}
 
-impl Clone for Claims {
-    fn clone(&self) -> Claims {
-        Claims {
+impl Clone for LoginUser {
+    fn clone(&self) -> LoginUser {
+        LoginUser {
             username: (self.username).parse().unwrap(),
             password: (*self.password).parse().unwrap(),
             auto_login: self.auto_login
@@ -27,7 +35,7 @@ struct UserResult {
 }
 
 
-pub async fn login(Json(login_user): Json<Claims>) -> String {
+pub async fn login(Json(login_user): Json<LoginUser>) -> String {
     let json: Option<String>;
 
     json = if let Some(mut conn) = sql_connect().await {
@@ -36,7 +44,21 @@ pub async fn login(Json(login_user): Json<Claims>) -> String {
         if let Some(user) = get_user(&mut conn, login_user.username).await {
             // 判断账号密码
             if login_user.password == user.password {
-                let claims = clone_user;
+                let start = SystemTime::now();
+                let since_the_epoch = start
+                    .duration_since(UNIX_EPOCH)
+                    .expect("Time went backwards");
+                let exp = since_the_epoch.as_secs();
+                let username = clone_user.username;
+                let password = clone_user.password;
+                let auto_login = clone_user.auto_login;
+                let claims = Claims{
+                    exp,
+                    username,
+                    password,
+                    auto_login
+                };
+
                 let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(DECODING_KEY.as_ref()));
 
                 match token {

@@ -13,7 +13,7 @@ use crate::sql::user::{get_user, User};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claims {
     // 必需品
-    pub exp: usize,
+    pub exp: u64,
     // 是否是自动登录
     pub auto_login: bool,
     // 可选。标题 (令牌指向的人)
