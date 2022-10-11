@@ -11,7 +11,7 @@ use crate::route::good::search_good::search_good;
 use crate::route::user::login::login;
 use crate::route::user::signup::signup;
 use crate::route::user::autologin::autologin;
-
+use crate::route::user::del_user::del_user;
 
 
 pub fn good_router() -> Router {
@@ -27,5 +27,6 @@ pub fn user_router() -> Router {
     return Router::new()
         .route("/login", post(login))
         .route("/signup", post(signup))
-        .route("/autologin", post(autologin));
+        .route("/autologin", post(autologin))
+        .route("/delUser", post(del_user));
 }

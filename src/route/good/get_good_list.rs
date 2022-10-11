@@ -15,7 +15,7 @@ pub struct GoodList {
 
 
 pub async fn get_good_list(headers: HeaderMap) -> Json<GoodList> {
-    let good_list = if let Some(mut conn) = sql_connect().await {
+    return Json(if let Some(mut conn) = sql_connect().await {
         let user = claims_get_user(headers, &mut conn).await;
         match user {
             Ok(_) => {
@@ -29,12 +29,9 @@ pub async fn get_good_list(headers: HeaderMap) -> Json<GoodList> {
                 create_good_list_result(NULL_GOOD_LIST, errmsg, 2)
             }
         }
-
     } else {
         create_good_list_result(NULL_GOOD_LIST, String::from("狐雾气 SQLite 出现问题"), 1)
-    };
-
-    return Json(good_list)
+    });
 }
 
 fn create_good_list_result(good_list: Vec<Good>, err_msg: String, errcode: i8) -> GoodList {
@@ -43,5 +40,5 @@ fn create_good_list_result(good_list: Vec<Good>, err_msg: String, errcode: i8) -
         good_list,
         errmsg,
         errcode,
-    }
+    };
 }

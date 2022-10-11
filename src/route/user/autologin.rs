@@ -11,7 +11,7 @@ pub struct AutologinResult {
 }
 
 pub async fn autologin(headers: HeaderMap) -> Json<AutologinResult> {
-    let auto_login_result = match claims_get_autologin(headers).await {
+    return Json(match claims_get_autologin(headers).await {
         Ok(is_autologin) => {
             create_auto_login_result(
                 is_autologin,
@@ -26,8 +26,7 @@ pub async fn autologin(headers: HeaderMap) -> Json<AutologinResult> {
                 1,
             )
         }
-    };
-    return Json(auto_login_result);
+    });
 }
 
 fn create_auto_login_result(

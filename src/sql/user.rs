@@ -70,9 +70,25 @@ pub async fn get_user(connect: &mut SqliteConnection, username: String) -> Optio
 
 async fn select_user(connect: &mut SqliteConnection, username: String) -> Result<Vec<User>, Error> {
     let res = sqlx::query_as::<Sqlite, User>(
-        "select * from users where username = $1"
+        "select * FROM users WHERE username = $1"
     ).bind(username)
         .fetch_all(connect)
         .await;
     return res
+}
+
+
+pub async fn delete_user(connect: &mut SqliteConnection, user_name: String) -> Result<bool, Error> {
+    create_user(connect).await;
+    let sql = sqlx::query::<Sqlite>("DELETE FROM users WHERE username = $1")
+        .bind(user_name)
+        .execute(connect).await;
+    return match sql {
+        Ok(_) => {
+            Ok(true)
+        }
+        Err(err) => {
+            Err(err)
+        }
+    };
 }

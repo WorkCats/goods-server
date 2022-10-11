@@ -13,7 +13,7 @@ pub struct UpdateGoodResult {
 }
 
 pub async fn update_good(headers: HeaderMap, Json(good): Json<Good>) -> Json<UpdateGoodResult> {
-    let update_good_result = if let Some(mut conn) = sql_connect().await {
+    return Json(if let Some(mut conn) = sql_connect().await {
         let user = claims_get_user(headers, &mut conn).await;
         match user {
             Ok(_) => {
@@ -44,9 +44,7 @@ pub async fn update_good(headers: HeaderMap, Json(good): Json<Good>) -> Json<Upd
             String::from("服务器 sql 连接出现问题"),
             4,
         )
-    };
-
-    return Json(update_good_result);
+    });
 }
 
 fn create_update_good_result(err_msg: String, errcode: i8) -> UpdateGoodResult {

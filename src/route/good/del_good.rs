@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct GoodName {
-    good_name: String
+    good_name: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -17,7 +17,7 @@ pub struct DelGoodResult {
 }
 
 pub async fn del_good(headers: HeaderMap, Json(good): Json<GoodName>) -> Json<DelGoodResult> {
-    let del_good_result = if let Some(mut conn) = sql_connect().await {
+    return Json(if let Some(mut conn) = sql_connect().await {
         let user = claims_get_user(headers, &mut conn).await;
         match user {
             Ok(_) => {
@@ -48,9 +48,7 @@ pub async fn del_good(headers: HeaderMap, Json(good): Json<GoodName>) -> Json<De
             String::from("服务器 sql 连接出现问题"),
             4,
         )
-    };
-
-    return Json(del_good_result)
+    });
 }
 
 fn create_del_good_result(err_msg: String, errcode: i8) -> DelGoodResult {
@@ -58,5 +56,5 @@ fn create_del_good_result(err_msg: String, errcode: i8) -> DelGoodResult {
     return DelGoodResult {
         errmsg,
         errcode,
-    }
+    };
 }

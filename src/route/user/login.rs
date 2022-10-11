@@ -36,9 +36,8 @@ pub struct UserResult {
 
 
 pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
-    let json: UserResult;
 
-    json = if let Some(mut conn) = sql_connect().await {
+    return Json(if let Some(mut conn) = sql_connect().await {
         // clone 对应用户
         let clone_user = login_user.clone();
         if let Some(user) = get_user(&mut conn, login_user.username).await {
@@ -78,8 +77,7 @@ pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
         }
     } else {
         create_user_result("".to_string(), "狐雾气出现问题了", 3)
-    };
-    return Json(json)
+    })
 }
 
 

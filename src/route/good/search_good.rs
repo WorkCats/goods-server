@@ -9,7 +9,7 @@ use crate::sql::good::{Good, select_good};
 
 #[derive(Serialize, Deserialize)]
 pub struct GoodName {
-    good_name: String
+    good_name: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -20,7 +20,7 @@ pub struct SearchGoodList {
 }
 
 pub async fn search_good(headers: HeaderMap, Json(good): Json<GoodName>) -> Json<SearchGoodList> {
-    let good_list = if let Some(mut conn) = sql_connect().await {
+    return Json(if let Some(mut conn) = sql_connect().await {
         let user = claims_get_user(headers, &mut conn).await;
         match user {
             Ok(_) => {
@@ -36,9 +36,7 @@ pub async fn search_good(headers: HeaderMap, Json(good): Json<GoodName>) -> Json
         }
     } else {
         create_search_good_result(NULL_GOOD_LIST, String::from("狐雾气 SQLite 出现问题"), 1)
-    };
-
-    return Json(good_list)
+    });
 }
 
 fn create_search_good_result(good_list: Vec<Good>, err_msg: String, errcode: i8) -> SearchGoodList {
@@ -47,5 +45,5 @@ fn create_search_good_result(good_list: Vec<Good>, err_msg: String, errcode: i8)
         good_list,
         errmsg,
         errcode,
-    }
+    };
 }
