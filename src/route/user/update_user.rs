@@ -6,7 +6,6 @@ use crate::route::{create_text_result_claims_err, create_text_result_sql_connect
 
 
 pub async fn update_user(headers: HeaderMap, Json(user): Json<User>) -> Json<TextResult> {
-    let update_user_name = user.clone().username;
     return Json(match sql_connect().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(login_user) => if login_user.is_administrator {
@@ -16,15 +15,7 @@ pub async fn update_user(headers: HeaderMap, Json(user): Json<User>) -> Json<Tex
                     Err(err) => create_text_result_sql_err(err)
                 }
             } else {
-                if update_user_name == login_user.username {
-                    match user::update_user(&mut conn, user).await {
-                        Ok(_) => TEXT_SUCCESS_RESULT.clone(),
-
-                        Err(err) => create_text_result_sql_err(err)
-                    }
-                } else {
-                    TEXT_RESULT_ADMINISTRATOR_ERRCODE.clone()
-                }
+                TEXT_RESULT_ADMINISTRATOR_ERRCODE.clone()
             }
 
             Err(errmsg) => create_text_result_claims_err(errmsg)

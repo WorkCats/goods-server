@@ -83,7 +83,7 @@ pub async fn get_all_user(connect: &mut SqliteConnection) -> Result<Vec<User>, E
 }
 pub async fn update_user(connect: &mut SqliteConnection, user: User) -> Result<bool, Error> {
     create_user(connect).await;
-    let sql = sqlx::query::<Sqlite>("UPDATE user SET is_administrator = $3 password = $2 WHERE username = $1;")
+    let sql = sqlx::query::<Sqlite>("UPDATE users SET is_administrator = $3, password = $2 WHERE username = $1;")
         .bind(user.username)
         .bind(user.password)
         .bind(user.is_administrator)

@@ -79,7 +79,7 @@ fn create_text_result_sql_connect_err(err_msg: Error)-> TextResult{
 }
 // 在需要判断时候管理员时所需错误
 pub static ADMINISTRATOR_ERRCODE: i8 = 4;
-pub static ADMINISTRATOR_ERR: &'static str = "您不是管理员，喵";
+pub static ADMINISTRATOR_STR: &'static str = "您不是管理员，喵";
 
 // 因为部分为常量，所以如此写
 lazy_static! {
@@ -90,7 +90,7 @@ lazy_static! {
     };
 
     pub static ref TEXT_RESULT_ADMINISTRATOR_ERRCODE: TextResult = TextResult{
-        errmsg: ADMINISTRATOR_ERR.to_string(),
+        errmsg: ADMINISTRATOR_STR.to_string(),
         errcode: ADMINISTRATOR_ERRCODE
     };
 
@@ -115,6 +115,5 @@ pub fn user_router() -> Router {
         .route("/delUser", post(del_user))
         .route("/searchUser", post(search_user))
         .route("/getUserList", post(get_user_list))
-        .route("/updateUser", post(update_user))
-    ;
+        .route("/updateUser", post(update_user));
 }

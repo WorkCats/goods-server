@@ -1,0 +1,46 @@
+### 增加货物
+POST {{Domain}}/good/delGood
+Content-Type: application/json
+authorization:{{TOKEN}}
+
+{
+  "id": "12",
+  "good_name": "esp32",
+  "size": 32,
+  "user_name": "Agoines"
+}
+
+
+### 删除货物
+POST {{Domain}}/good/delGood
+Content-Type: application/json
+authorization:{{TOKEN}}
+
+{
+  "good_name": "esp32"
+}
+
+### 查找对应货物
+POST {{Domain}}/good/searchGood
+Content-Type: application/json
+authorization:{{TOKEN}}
+
+{
+  "good_name": "esp32"
+}
+
+### 获取货物列表
+POST {{Domain}}/good/getGoodList
+authorization:{{TOKEN}}
+
+### 更新货物
+POST {{Domain}}/good/updateGood
+authorization:{{TOKEN}}
+Content-Type: application/json
+
+{
+  "id": "12",
+  "good_name": "esp86",
+  "size": 32,
+  "user_name": "Agoines"
+}

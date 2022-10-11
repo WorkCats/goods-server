@@ -75,11 +75,11 @@ pub static PASSWORD_STR: &'static str = "当前账户或者密码出现问题了
 pub static USERNAME_ERRCODE: i8 = 7;
 pub static USERNAME_STR: &'static str = "当前用户名不存在";
 
-fn create_user_result_sql_connect_err(errmsg: String) -> UserResult{
+fn create_user_result_sql_connect_err(errmsg: String) -> UserResult {
     return UserResult {
         token: NULL_TOKEN.to_string(),
         errmsg,
-        errcode: SQL_CONNECT_ERRCODE
+        errcode: SQL_CONNECT_ERRCODE,
     };
 }
 lazy_static! {
@@ -127,7 +127,7 @@ pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
 
 fn claims_from_user(user: LoginUser) -> Claims {
     let start = SystemTime::now();
-    let exp = start.duration_since(UNIX_EPOCH).expect("Time went backwards").as_secs();
+    let exp = start.duration_since(UNIX_EPOCH).expect("Time went backwards").as_secs() + 7 * 60 * 60 * 24;
     let username = user.username;
     let password = user.password;
     let auto_login = user.auto_login;

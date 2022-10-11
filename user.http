@@ -1,4 +1,5 @@
-POST http://localhost:3000/user/login
+### 登录
+POST {{Domain}}/user/login
 Content-Type: application/json
 
 {
@@ -7,31 +8,50 @@ Content-Type: application/json
   "auto_login": false
 }
 
-### signup
-POST http://localhost:3000/user/signup
+### 注册
+POST {{Domain}}/user/signup
+Content-Type: application/json
+authorization:{{TOKEN}}
 
-### hello world
-GET http://localhost:3000/
+{
+  "username": "夜白",
+  "password": "qwer1234",
+  "is_administrator": false
+}
 
+### 是否是自动登录
+POST {{Domain}}/user/autologin
+authorization:{{TOKEN}}
 
-### /getGoodList
-POST http://localhost:3000/good/getGoodList
-authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRvX2xvZ2luIjpmYWxzZSwidXNlcm5hbWUiOiJhZ29pbmVzIiwicGFzc3dvcmQiOiJxd2VyMTIzNCJ9.ZiOf06Dd5D9Omc_XyXrntPNL27vr1WiWQevwK7bUMb0
+### 删除用户
+POST {{Domain}}/user/delUser
+Content-Type: application/json
+authorization:{{TOKEN}}
 
-### /addGood
-POST http://localhost:3000/good/addGood
-Cookie: TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NjU1NjkzMDgsInVzZXJuYW1lIjoiYWdvaW5lcyIsInBhc3N3b3JkIjoicXdlcjEyMzQifQ.b33bpQcAYSNCE_6nH8dTLgJNdBT2WG9mhIiRoQtw6G8;
+{
+   "username": "夜白"
+}
+
+### 查找对应用户
+POST {{Domain}}/user/searchUser
+Content-Type: application/json
+authorization:{{TOKEN}}
+
+{
+   "username": "agoines"
+}
+### 获取用户列表
+POST {{Domain}}/user/getUserList
+authorization:{{TOKEN}}
+
+### 更新用户
+POST {{Domain}}/user/updateUser
+authorization:{{TOKEN}}
 Content-Type: application/json
 
 {
-  "id": "12",
-  "name": "esp86",
-  "size": 32,
-  "user_name": "Agoines"
+  "username": "夜白",
+  "password": "agoines",
+  "is_administrator": true
 }
-### /delGood
-POST http://localhost:3000/good/delGood
-authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRvX2xvZ2luIjpmYWxzZSwidXNlcm5hbWUiOiJhZ29pbmVzIiwicGFzc3dvcmQiOiJxd2VyMTIzNCJ9.ZiOf06Dd5D9Omc_XyXrntPNL27vr1WiWQevwK7bUMb0
-Content-Type: application/json
 
-"123"
