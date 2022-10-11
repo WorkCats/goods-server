@@ -1,11 +1,11 @@
 ### 增加货物
-POST {{Domain}}/good/delGood
+POST {{Domain}}/good/addGood
 Content-Type: application/json
 authorization:{{TOKEN}}
 
 {
-  "id": "12",
-  "good_name": "esp32",
+  "id": "请问",
+  "name": "esp32",
   "size": 32,
   "user_name": "Agoines"
 }
@@ -17,7 +17,7 @@ Content-Type: application/json
 authorization:{{TOKEN}}
 
 {
-  "good_name": "esp32"
+  "good_id": "12"
 }
 
 ### 查找对应货物
