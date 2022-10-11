@@ -26,7 +26,7 @@ Content-Type: application/json
 authorization:{{TOKEN}}
 
 {
-  "good_name": "esp32"
+  "good_name": "qw"
 }
 
 ### 获取货物列表

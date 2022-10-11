@@ -61,7 +61,7 @@ pub async fn select_good(connect: &mut SqliteConnection, name: String) -> Result
     create_good(connect).await;
     let name = "%".to_owned() + name.as_str() + "%";
     let sql =
-        sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE name LIKE name = $1")
+        sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE name LIKE $1")
         .bind(name)
         .fetch_all(connect).await;
     return sql
