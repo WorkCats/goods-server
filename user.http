@@ -38,8 +38,9 @@ Content-Type: application/json
 authorization:{{TOKEN}}
 
 {
-   "username": "agoines"
+   "username": "agoine"
 }
+
 ### 获取用户列表
 POST {{Domain}}/user/getUserList
 authorization:{{TOKEN}}
@@ -53,5 +54,18 @@ Content-Type: application/json
   "username": "夜白",
   "password": "agoines",
   "is_administrator": true
+}
+
+### 获取用户名字
+POST {{Domain}}/user/getUsernameList
+authorization:{{TOKEN}}
+
+### 用户对应的货物
+POST {{Domain}}/user/getGoods
+authorization:{{TOKEN}}
+Content-Type: application/json
+
+{
+   "username": "agoines"
 }
 

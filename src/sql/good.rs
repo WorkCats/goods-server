@@ -41,7 +41,7 @@ pub async fn insert_good(connect: &mut SqliteConnection, good: Good) -> Result<b
 
 pub async fn update_good(connect: &mut SqliteConnection, good: Good) -> Result<bool, Error> {
     create_good(connect).await;
-    let sql = sqlx::query::<Sqlite>("UPDATE goods SET name = $2 size = $3,user_name = size = $4 WHERE ID = $1;")
+    let sql = sqlx::query::<Sqlite>("UPDATE goods SET name = $2 size = $3,user_name = $4 WHERE ID = $1;")
         .bind(good.id)
         .bind(good.name)
         .bind(good.size)
@@ -59,10 +59,20 @@ pub async fn update_good(connect: &mut SqliteConnection, good: Good) -> Result<b
 
 pub async fn select_good(connect: &mut SqliteConnection, name: String) -> Result<Vec<Good>, Error> {
     create_good(connect).await;
+    let name = "%".to_owned() + name.as_str() + "%";
     let sql =
-        sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE NAME LIKE name = $1")
+        sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE name LIKE name = $1")
         .bind(name)
         .fetch_all(connect).await;
+    return sql
+}
+
+pub async fn select_good_with_user(connect: &mut SqliteConnection, username: String) -> Result<Vec<Good>, Error> {
+    create_good(connect).await;
+    let sql =
+        sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE user_name = $1")
+            .bind(username)
+            .fetch_all(connect).await;
     return sql
 }
 

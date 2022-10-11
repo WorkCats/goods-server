@@ -11,6 +11,8 @@ pub mod del_user;
 pub mod search_user;
 pub mod get_user_list;
 pub mod update_user;
+pub mod get_username_list;
+pub mod get_goods;
 
 pub const NULL_USER_LIST: Vec<User> = Vec::new();
 

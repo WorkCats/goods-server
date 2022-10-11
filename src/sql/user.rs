@@ -51,36 +51,31 @@ pub async fn insert_user(connect: &mut SqliteConnection, user: User) -> Result<b
 }
 
 
-pub async fn get_user(connect: &mut SqliteConnection, username: String) -> Option<User> {
-    return match select_user(connect, username).await {
-        Ok(user_list) => {
-            if let Some(user) = user_list.get(0) {
-                let user = user.clone();
-                Some(user)
-            } else {
-                None
-            }
-        }
-        Err(_) => {
-            None
-        }
-    };
+pub async fn get_user(connect: &mut SqliteConnection, username: String) -> Result<User, Error> {
+    return sqlx::query_as::<Sqlite, User>(
+        "select * FROM users WHERE username = $1"
+    ).bind(username)
+        .fetch_one(connect)
+        .await;
 }
 
-pub async fn select_user(connect: &mut SqliteConnection, username: String) -> Result<Vec<User>, Error> {
+pub async fn search_user(connect: &mut SqliteConnection, username: String) -> Result<Vec<User>, Error> {
+    let username = "%".to_owned() + username.as_str() + "%";
     let res = sqlx::query_as::<Sqlite, User>(
-        "select * FROM users WHERE username = $1"
+        "select * FROM users WHERE username LIKE $1"
     ).bind(username)
         .fetch_all(connect)
         .await;
     return res
 }
+
 pub async fn get_all_user(connect: &mut SqliteConnection) -> Result<Vec<User>, Error> {
     create_user(connect).await;
     let sql = sqlx::query_as::<Sqlite, User>("SELECT * FROM users")
         .fetch_all(connect).await;
     return sql
 }
+
 pub async fn update_user(connect: &mut SqliteConnection, user: User) -> Result<bool, Error> {
     create_user(connect).await;
     let sql = sqlx::query::<Sqlite>("UPDATE users SET is_administrator = $3, password = $2 WHERE username = $1;")

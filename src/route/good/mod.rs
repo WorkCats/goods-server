@@ -40,7 +40,7 @@ impl Clone for GoodListResult{
 }
 
 
-fn create_good_list_success_result(good_list: Vec<Good>) -> GoodListResult {
+pub(crate) fn create_good_list_success_result(good_list: Vec<Good>) -> GoodListResult {
     return GoodListResult {
         good_list,
         errmsg: SUCCESS_STR.to_string(),
@@ -48,7 +48,7 @@ fn create_good_list_success_result(good_list: Vec<Good>) -> GoodListResult {
     };
 }
 
-fn create_good_list_result_sql_err(err_msg: Error) -> GoodListResult {
+pub(crate) fn create_good_list_result_sql_err(err_msg: Error) -> GoodListResult {
     let errmsg = err_msg.to_string();
     return GoodListResult {
         good_list: NULL_GOOD_LIST,
@@ -57,7 +57,7 @@ fn create_good_list_result_sql_err(err_msg: Error) -> GoodListResult {
     };
 }
 
-fn create_good_list_result_claims_err(errmsg: String) -> GoodListResult {
+pub(crate) fn create_good_list_result_claims_err(errmsg: String) -> GoodListResult {
     return GoodListResult {
         good_list: NULL_GOOD_LIST,
         errmsg,
@@ -65,7 +65,7 @@ fn create_good_list_result_claims_err(errmsg: String) -> GoodListResult {
     };
 }
 
-fn create_good_list_result_sql_connect_err(err_msg: Error) -> GoodListResult {
+pub(crate) fn create_good_list_result_sql_connect_err(err_msg: Error) -> GoodListResult {
     let errmsg = err_msg.to_string();
     return GoodListResult {
         good_list: NULL_GOOD_LIST,

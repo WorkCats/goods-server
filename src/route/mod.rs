@@ -21,7 +21,9 @@ use crate::route::user::{
     autologin::autologin,
     del_user::del_user,
 };
+use crate::route::user::get_goods::get_goods;
 use crate::route::user::get_user_list::get_user_list;
+use crate::route::user::get_username_list::get_username_list;
 use crate::route::user::search_user::search_user;
 use crate::route::user::update_user::update_user;
 
@@ -115,5 +117,7 @@ pub fn user_router() -> Router {
         .route("/delUser", post(del_user))
         .route("/searchUser", post(search_user))
         .route("/getUserList", post(get_user_list))
-        .route("/updateUser", post(update_user));
+        .route("/updateUser", post(update_user))
+        .route("/getUsernameList", post(get_username_list))
+        .route("/getGoods", post(get_goods));
 }

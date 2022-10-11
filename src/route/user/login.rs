@@ -101,9 +101,9 @@ pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
     return Json(match sql_connect().await {
         // clone 对应用户
 
-        Ok(mut conn) => if let Some(user) = get_user(&mut conn, login_user.username).await {
+        Ok(mut conn) => match get_user(&mut conn, login_user.username).await {
             // 判断账号密码
-            if login_user.password == user.password {
+            Ok(user) => if login_user.password == user.password {
                 let token = encode(
                     &Header::default(),
                     &claims_from_user(clone_user),
@@ -117,8 +117,8 @@ pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
             } else {
                 USER_RESULT_PASSWORD_ERR.clone()
             }
-        } else {
-            USER_RESULT_USERNAME_ERR.clone()
+
+            Err(_) => USER_RESULT_USERNAME_ERR.clone()
         }
         Err(err) => create_user_result_sql_connect_err(err.to_string())
     });

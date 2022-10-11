@@ -55,14 +55,13 @@ pub async fn claims_get_user(headers: HeaderMap, connect: &mut SqliteConnection)
     );
     match claims {
         Ok(claims) => {
-            if let Some(user) = get_user(connect, claims.claims.username).await {
-                if user.password == claims.claims.password {
+            match get_user(connect, claims.claims.username).await {
+                Ok(user) => if user.password == claims.claims.password {
                     Ok(user)
                 } else {
                     Err(String::from("账号密码不符合"))
                 }
-            } else {
-                Err(String::from("不存在当前用户"))
+                Err(_) => Err(String::from("不存在当前用户"))
             }
         }
 
