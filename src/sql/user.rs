@@ -67,8 +67,7 @@ pub async fn get_user(connect: &mut SqliteConnection, username: String) -> Optio
     };
 }
 
-
-async fn select_user(connect: &mut SqliteConnection, username: String) -> Result<Vec<User>, Error> {
+pub async fn select_user(connect: &mut SqliteConnection, username: String) -> Result<Vec<User>, Error> {
     let res = sqlx::query_as::<Sqlite, User>(
         "select * FROM users WHERE username = $1"
     ).bind(username)
@@ -76,7 +75,28 @@ async fn select_user(connect: &mut SqliteConnection, username: String) -> Result
         .await;
     return res
 }
-
+pub async fn get_all_user(connect: &mut SqliteConnection) -> Result<Vec<User>, Error> {
+    create_user(connect).await;
+    let sql = sqlx::query_as::<Sqlite, User>("SELECT * FROM users")
+        .fetch_all(connect).await;
+    return sql
+}
+pub async fn update_user(connect: &mut SqliteConnection, user: User) -> Result<bool, Error> {
+    create_user(connect).await;
+    let sql = sqlx::query::<Sqlite>("UPDATE user SET is_administrator = $3 password = $2 WHERE username = $1;")
+        .bind(user.username)
+        .bind(user.password)
+        .bind(user.is_administrator)
+        .execute(connect).await;
+    return match sql {
+        Ok(_) => {
+            Ok(true)
+        }
+        Err(err) => {
+            Err(err)
+        }
+    };
+}
 
 pub async fn delete_user(connect: &mut SqliteConnection, user_name: String) -> Result<bool, Error> {
     create_user(connect).await;

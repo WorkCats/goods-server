@@ -1,15 +1,13 @@
-use sqlx::{sqlite::SqliteConnection, Connection};
+use sqlx::{sqlite::SqliteConnection, Connection, Error};
 use crate::data::SQL_FILE;
 
-pub(crate) async fn sql_connect() -> Option<SqliteConnection> {
-    let connect = SqliteConnection::connect(SQL_FILE).await;
-    match connect {
+pub(crate) async fn sql_connect() -> Result<SqliteConnection, Error> {
+    match SqliteConnection::connect(SQL_FILE).await {
         Ok(conn) => {
-            Some(conn)
+            Ok(conn)
         }
         Err(err) => {
-            println!("sql connect err message: {:?}", err);
-            None
+            Err(err)
         }
     }
 }

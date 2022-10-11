@@ -1,4 +1,3 @@
-
 use jsonwebtoken::{Algorithm, decode, DecodingKey, Validation};
 use serde::{Serialize, Deserialize};
 use axum::http::header::AUTHORIZATION;
@@ -10,7 +9,7 @@ use crate::data::DECODING_KEY;
 use crate::sql::user::{get_user, User};
 
 /// 我们的声言结构型, 需要由`Serialize` 或 `Deserialize`派生
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct Claims {
     // 必需品
     pub exp: u64,
@@ -18,15 +17,17 @@ pub struct Claims {
     pub auto_login: bool,
     // 可选。标题 (令牌指向的人)
     pub username: String,
-    pub password: String
+    pub password: String,
 }
 
+
 fn get_cookies(headers: HeaderMap) -> String {
-    return  headers.get(AUTHORIZATION)
+    return headers.get(AUTHORIZATION)
         .and_then(|v| v.to_str().ok())
         .map(|v| v.to_string())
         .unwrap_or("".to_string());
 }
+
 pub async fn claims_get_autologin(headers: HeaderMap) -> Result<bool, Error> {
     let cookies = get_cookies(headers);
     let claims = decode::<Claims>(
@@ -38,11 +39,10 @@ pub async fn claims_get_autologin(headers: HeaderMap) -> Result<bool, Error> {
         Ok(claims) => {
             Ok(claims.claims.auto_login)
         }
-        Err(err)=>{
+        Err(err) => {
             Err(err)
         }
     }
-
 }
 
 pub async fn claims_get_user(headers: HeaderMap, connect: &mut SqliteConnection) -> Result<User, String> {
@@ -55,13 +55,13 @@ pub async fn claims_get_user(headers: HeaderMap, connect: &mut SqliteConnection)
     );
     match claims {
         Ok(claims) => {
-            if let Some(user) = get_user(connect, claims.claims.username).await{
+            if let Some(user) = get_user(connect, claims.claims.username).await {
                 if user.password == claims.claims.password {
                     Ok(user)
-                }else{
+                } else {
                     Err(String::from("账号密码不符合"))
                 }
-            }else{
+            } else {
                 Err(String::from("不存在当前用户"))
             }
         }

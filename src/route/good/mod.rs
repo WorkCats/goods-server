@@ -4,14 +4,12 @@ pub mod del_good;
 pub mod update_good;
 pub mod search_good;
 
-use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
 use crate::route::{
     SQL_ERRCODE,
     SUCCESS_CODE,
     SUCCESS_STR,
-    SQL_CONNECT_ERR,
     SQL_CONNECT_ERRCODE,
     CLAIMS_ERRCODE
 };
@@ -67,10 +65,11 @@ fn create_good_list_result_claims_err(errmsg: String) -> GoodListResult {
     };
 }
 
-lazy_static! {
-pub static ref GOOD_LIST_RESULT_SQL_CONNECT_ERR: GoodListResult = GoodListResult{
+fn create_good_list_result_sql_connect_err(err_msg: Error) -> GoodListResult {
+    let errmsg = err_msg.to_string();
+    return GoodListResult {
         good_list: NULL_GOOD_LIST,
-        errmsg: SQL_CONNECT_ERR.to_string(),
+        errmsg,
         errcode: SQL_CONNECT_ERRCODE
     };
 }

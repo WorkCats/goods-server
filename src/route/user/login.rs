@@ -1,6 +1,7 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 use axum::Json;
 use jsonwebtoken::{encode, EncodingKey, Header};
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
 use crate::data::DECODING_KEY;
@@ -9,12 +10,12 @@ use crate::sql::{
     sqlite_util::sql_connect,
     user::get_user,
 };
+use crate::route::{SUCCESS_CODE, SUCCESS_STR, SQL_CONNECT_ERRCODE};
 
 #[derive(Serialize, Deserialize)]
 pub struct LoginUser {
     // 是否是自动登录
     pub auto_login: bool,
-    // 可选。标题 (令牌指向的人)
     pub username: String,
     pub password: String,
 }
@@ -36,57 +37,104 @@ pub struct UserResult {
     errcode: i8,
 }
 
+impl Clone for UserResult {
+    fn clone(&self) -> UserResult {
+        return UserResult {
+            token: (self.token).parse().unwrap(),
+            errmsg: (*self.errmsg).parse().unwrap(),
+            errcode: self.errcode,
+        };
+    }
+}
+
+static NULL_TOKEN: &'static str = "";
+
+fn create_user_success_result(token: String) -> UserResult {
+    return UserResult {
+        token,
+        errmsg: SUCCESS_STR.to_string(),
+        errcode: SUCCESS_CODE,
+    };
+}
+
+// 在生成 TOKEN 时候出现问题
+pub static TOKEN_ERRCODE: i8 = 5;
+
+fn create_user_result_token_err(errmsg: String) -> UserResult {
+    return UserResult {
+        token: NULL_TOKEN.to_string(),
+        errmsg,
+        errcode: TOKEN_ERRCODE,
+    };
+}
+
+// 密码出问题出现问题
+pub static PASSWORD_ERRCODE: i8 = 6;
+pub static PASSWORD_STR: &'static str = "当前账户或者密码出现问题了，喵";
+// 当前用户不存在
+pub static USERNAME_ERRCODE: i8 = 7;
+pub static USERNAME_STR: &'static str = "当前用户名不存在";
+
+fn create_user_result_sql_connect_err(errmsg: String) -> UserResult{
+    return UserResult {
+        token: NULL_TOKEN.to_string(),
+        errmsg,
+        errcode: SQL_CONNECT_ERRCODE
+    };
+}
+lazy_static! {
+    static ref USER_RESULT_PASSWORD_ERR:UserResult = UserResult {
+        token: NULL_TOKEN.to_string(),
+        errmsg: PASSWORD_STR.to_string(),
+        errcode: PASSWORD_ERRCODE
+    };
+
+    static ref USER_RESULT_USERNAME_ERR:UserResult = UserResult {
+        token: NULL_TOKEN.to_string(),
+        errmsg: USERNAME_STR.to_string(),
+        errcode:USERNAME_ERRCODE
+    };
+}
 
 pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
-    return Json(if let Some(mut conn) = sql_connect().await {
+    let clone_user = login_user.clone();
+    return Json(match sql_connect().await {
         // clone 对应用户
-        let clone_user = login_user.clone();
-        if let Some(user) = get_user(&mut conn, login_user.username).await {
+
+        Ok(mut conn) => if let Some(user) = get_user(&mut conn, login_user.username).await {
             // 判断账号密码
             if login_user.password == user.password {
-                let start = SystemTime::now();
-                let since_the_epoch = start
-                    .duration_since(UNIX_EPOCH)
-                    .expect("Time went backwards");
-                let exp = since_the_epoch.as_secs();
-                let username = clone_user.username;
-                let password = clone_user.password;
-                let auto_login = clone_user.auto_login;
-                let claims = Claims {
-                    exp,
-                    username,
-                    password,
-                    auto_login,
-                };
-
-                let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(DECODING_KEY.as_ref()));
-
+                let token = encode(
+                    &Header::default(),
+                    &claims_from_user(clone_user),
+                    &EncodingKey::from_secret(DECODING_KEY.as_ref()),
+                );
                 match token {
-                    Ok(string) =>
-                        create_user_result(string, "", 0),
+                    Ok(string) => create_user_success_result(string),
 
-                    Err(err) => {
-                        println!("token create :{:?}", err);
-                        create_user_result("".to_string(), "狐雾气出现问题了", 3)
-                    }
+                    Err(err) => create_user_result_token_err(err.to_string())
                 }
             } else {
-                create_user_result("".to_string(), "账号或者密码填写出现问题", 1)
+                USER_RESULT_PASSWORD_ERR.clone()
             }
         } else {
-            create_user_result("".to_string(), "当前用户名不存在", 2)
+            USER_RESULT_USERNAME_ERR.clone()
         }
-    } else {
-        create_user_result("".to_string(), "狐雾气出现问题了", 3)
+        Err(err) => create_user_result_sql_connect_err(err.to_string())
     });
 }
 
 
-fn create_user_result(token: String, err_msg: &str, errcode: i8) -> UserResult {
-    let errmsg = err_msg.to_string();
-    return UserResult {
-        token,
-        errmsg,
-        errcode,
+fn claims_from_user(user: LoginUser) -> Claims {
+    let start = SystemTime::now();
+    let exp = start.duration_since(UNIX_EPOCH).expect("Time went backwards").as_secs();
+    let username = user.username;
+    let password = user.password;
+    let auto_login = user.auto_login;
+    return Claims {
+        exp,
+        username,
+        password,
+        auto_login,
     };
 }

@@ -60,7 +60,7 @@ pub async fn update_good(connect: &mut SqliteConnection, good: Good) -> Result<b
 pub async fn select_good(connect: &mut SqliteConnection, name: String) -> Result<Vec<Good>, Error> {
     create_good(connect).await;
     let sql =
-        sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE NAME LIKE  name = $1")
+        sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE NAME LIKE name = $1")
         .bind(name)
         .fetch_all(connect).await;
     return sql

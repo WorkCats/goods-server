@@ -21,6 +21,9 @@ use crate::route::user::{
     autologin::autologin,
     del_user::del_user,
 };
+use crate::route::user::get_user_list::get_user_list;
+use crate::route::user::search_user::search_user;
+use crate::route::user::update_user::update_user;
 
 /**
  * TextResult 是在客户端与服务端交互，不需要返回数据时使用的结构体
@@ -66,8 +69,14 @@ fn create_text_result_claims_err(errmsg: String) -> TextResult {
 
 // 在 SQL 连接出现问题时所需错误
 pub static SQL_CONNECT_ERRCODE: i8 = 3;
-pub static SQL_CONNECT_ERR: &'static str = "服务器 sql 连接出现问题";
 
+fn create_text_result_sql_connect_err(err_msg: Error)-> TextResult{
+    let errmsg = err_msg.to_string();
+    return TextResult {
+        errmsg,
+        errcode: CLAIMS_ERRCODE,
+    };
+}
 // 在需要判断时候管理员时所需错误
 pub static ADMINISTRATOR_ERRCODE: i8 = 4;
 pub static ADMINISTRATOR_ERR: &'static str = "您不是管理员，喵";
@@ -78,11 +87,6 @@ lazy_static! {
     pub static ref TEXT_SUCCESS_RESULT: TextResult = TextResult{
         errmsg: SUCCESS_STR.to_string(),
         errcode: SUCCESS_CODE
-    };
-
-    pub static ref TEXT_RESULT_SQL_CONNECT_ERR: TextResult = TextResult{
-        errmsg: SQL_CONNECT_ERR.to_string(),
-        errcode: SQL_CONNECT_ERRCODE
     };
 
     pub static ref TEXT_RESULT_ADMINISTRATOR_ERRCODE: TextResult = TextResult{
@@ -108,5 +112,9 @@ pub fn user_router() -> Router {
         .route("/login", post(login))
         .route("/signup", post(signup))
         .route("/autologin", post(autologin))
-        .route("/delUser", post(del_user));
+        .route("/delUser", post(del_user))
+        .route("/searchUser", post(search_user))
+        .route("/getUserList", post(get_user_list))
+        .route("/updateUser", post(update_user))
+    ;
 }
