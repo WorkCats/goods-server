@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "username": "agoines",
   "password": "qwer1234",
-  "auto_login": false
+  "auto_login": true
 }
 
 ### 注册
@@ -19,7 +19,7 @@ authorization:{{TOKEN}}
   "is_administrator": false
 }
 
-### 是否是自动登录
+### token 续签
 POST {{Domain}}/user/autologin
 authorization:{{TOKEN}}
 
@@ -69,3 +69,6 @@ Content-Type: application/json
    "username": "agoines"
 }
 
+### 获取是否为管理员
+POST {{Domain}}/user/isAdministrator
+authorization:{{TOKEN}}

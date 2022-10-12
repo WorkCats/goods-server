@@ -19,7 +19,6 @@ pub async fn search_user(headers: HeaderMap, Json(user): Json<UserName>) -> Json
                 USER_LIST_RESULT_ADMINISTRATOR_ERRCODE.clone()
             }
 
-
             Err(errmsg) => create_user_list_result_claims_err(errmsg)
         }
         Err(err) => create_user_list_result_sql_connect_err(err)

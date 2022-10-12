@@ -1,16 +1,13 @@
-use std::time::{SystemTime, UNIX_EPOCH};
 use axum::Json;
-use jsonwebtoken::{encode, EncodingKey, Header};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
-use crate::data::DECODING_KEY;
-use crate::claims::Claims;
 use crate::sql::{
     sqlite_util::sql_connect,
     user::get_user,
 };
 use crate::route::{SUCCESS_CODE, SUCCESS_STR, SQL_CONNECT_ERRCODE};
+use crate::route::user::{NULL_TOKEN, token_from_user, UserResult};
 
 #[derive(Serialize, Deserialize)]
 pub struct LoginUser {
@@ -29,25 +26,6 @@ impl Clone for LoginUser {
         }
     }
 }
-
-#[derive(Serialize, Deserialize)]
-pub struct UserResult {
-    token: String,
-    errmsg: String,
-    errcode: i8,
-}
-
-impl Clone for UserResult {
-    fn clone(&self) -> UserResult {
-        return UserResult {
-            token: (self.token).parse().unwrap(),
-            errmsg: (*self.errmsg).parse().unwrap(),
-            errcode: self.errcode,
-        };
-    }
-}
-
-static NULL_TOKEN: &'static str = "";
 
 fn create_user_success_result(token: String) -> UserResult {
     return UserResult {
@@ -75,7 +53,7 @@ pub static PASSWORD_STR: &'static str = "当前账户或者密码出现问题了
 pub static USERNAME_ERRCODE: i8 = 7;
 pub static USERNAME_STR: &'static str = "当前用户名不存在";
 
-fn create_user_result_sql_connect_err(errmsg: String) -> UserResult {
+pub fn create_user_result_sql_connect_err(errmsg: String) -> UserResult {
     return UserResult {
         token: NULL_TOKEN.to_string(),
         errmsg,
@@ -104,12 +82,8 @@ pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
         Ok(mut conn) => match get_user(&mut conn, login_user.username).await {
             // 判断账号密码
             Ok(user) => if login_user.password == user.password {
-                let token = encode(
-                    &Header::default(),
-                    &claims_from_user(clone_user),
-                    &EncodingKey::from_secret(DECODING_KEY.as_ref()),
-                );
-                match token {
+
+                match token_from_user(clone_user) {
                     Ok(string) => create_user_success_result(string),
 
                     Err(err) => create_user_result_token_err(err.to_string())
@@ -122,19 +96,4 @@ pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
         }
         Err(err) => create_user_result_sql_connect_err(err.to_string())
     });
-}
-
-
-fn claims_from_user(user: LoginUser) -> Claims {
-    let start = SystemTime::now();
-    let exp = start.duration_since(UNIX_EPOCH).expect("Time went backwards").as_secs() + 7 * 60 * 60 * 24;
-    let username = user.username;
-    let password = user.password;
-    let auto_login = user.auto_login;
-    return Claims {
-        exp,
-        username,
-        password,
-        auto_login,
-    };
 }
