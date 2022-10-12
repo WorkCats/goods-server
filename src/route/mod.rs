@@ -73,8 +73,7 @@ fn create_text_result_claims_err(errmsg: String) -> TextResult {
 // 在 SQL 连接出现问题时所需错误
 pub static SQL_CONNECT_ERRCODE: i8 = 3;
 
-fn create_text_result_sql_connect_err(err_msg: Error)-> TextResult{
-    let errmsg = err_msg.to_string();
+fn create_text_result_sql_connect_err(errmsg: String)-> TextResult{
     return TextResult {
         errmsg,
         errcode: CLAIMS_ERRCODE,

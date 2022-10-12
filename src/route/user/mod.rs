@@ -88,8 +88,7 @@ fn create_user_list_result_claims_err(errmsg: String) -> UserListResult {
     };
 }
 
-fn create_user_list_result_sql_connect_err(err_msg: Error) -> UserListResult {
-    let errmsg = err_msg.to_string();
+fn create_user_list_result_sql_connect_err(errmsg: String) -> UserListResult {
     return UserListResult {
         user_list: NULL_USER_LIST,
         errmsg,

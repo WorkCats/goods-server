@@ -41,8 +41,7 @@ fn create_user_name_list_result_claims_err(errmsg: String) -> UserNameListResult
     };
 }
 
-fn create_user_name_list_result_sql_connect_err(err_msg: Error) -> UserNameListResult {
-    let errmsg = err_msg.to_string();
+fn create_user_name_list_result_sql_connect_err(errmsg: String) -> UserNameListResult {
     return UserNameListResult {
         username_list: NULL_USERNAME_LIST,
         errmsg,

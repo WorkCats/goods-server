@@ -65,8 +65,7 @@ pub(crate) fn create_good_list_result_claims_err(errmsg: String) -> GoodListResu
     };
 }
 
-pub(crate) fn create_good_list_result_sql_connect_err(err_msg: Error) -> GoodListResult {
-    let errmsg = err_msg.to_string();
+pub(crate) fn create_good_list_result_sql_connect_err(errmsg: String) -> GoodListResult {
     return GoodListResult {
         good_list: NULL_GOOD_LIST,
         errmsg,
