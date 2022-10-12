@@ -3,7 +3,7 @@ mod route;
 mod sql;
 mod data;
 
-use axum::{Router, http::{Method, header::{CONTENT_TYPE, AUTHORIZATION}}};
+use axum::{Router, http::{Method, header::{CONTENT_TYPE, AUTHORIZATION}}, Server};
 
 use tower_http::cors::CorsLayer;
 
@@ -31,7 +31,7 @@ async fn main() {
 
     println!("你可以通过打开 http://{}", DOMAIN);
     // run it with hyper on localhost:3000
-    axum::Server::bind(&DOMAIN.parse().unwrap())
+    Server::bind(&DOMAIN.parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();

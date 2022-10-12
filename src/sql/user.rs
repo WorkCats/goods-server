@@ -36,18 +36,21 @@ async fn create_user(connect: &mut SqliteConnection) {
 }
 
 async fn into_default_user(connect: &mut SqliteConnection) {
-    sqlx::query::<Sqlite>("insert into users (username,password,is_administrator) values ( $1,$2,$3 )")
+    let _ = sqlx::query::<Sqlite>("insert into users (username,password,is_administrator) values ( $1,$2,$3 )")
         .bind(DEFAULT_USERNAME)
         .bind(DEFAULT_PASSWORD)
         .bind(true)
-        .execute(connect).await.expect("");
+        .execute(connect).await;
 }
 
 pub async fn insert_user(connect: &mut SqliteConnection, user: User) -> Result<bool, Error> {
     create_user(connect).await;
-    if get_all_user(connect).await.expect("").is_empty() {
-        into_default_user(connect).await;
-    };
+    match get_all_user(connect).await {
+        Ok(users_list) => if users_list.is_empty() {
+            into_default_user(connect).await;
+        }
+        Err(_) => {}
+    }
     let sql = sqlx::query::<Sqlite>("insert into users (username,password,is_administrator) values ( $1,$2,$3 )")
         .bind(user.username)
         .bind(user.password)
