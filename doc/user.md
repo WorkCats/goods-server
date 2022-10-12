@@ -198,7 +198,7 @@ Content-Type: application/json
 
 # 获取用户名称列表
 
-https://DOMAIN/user/getUsernameLis
+https://DOMAIN/user/getUsernameList
 
 `post`
 
