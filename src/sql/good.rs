@@ -12,9 +12,7 @@ pub struct Good {
 async fn create_good(connect: &mut SqliteConnection) {
     let table = sqlx::query::<Sqlite>("CREATE TABLE IF NOT EXISTS goods(id text primary key,name text,size integer, user_name text)").execute(connect).await;
     match table {
-        Ok(result) => {
-            println!("create goods: {:?}", result);
-        }
+        Ok(_) => {}
         Err(err) => {
             println!("create goods err message: {:?}", err);
         }

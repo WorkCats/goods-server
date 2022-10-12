@@ -18,3 +18,6 @@ pub static ALLOW_ORIGIN: [HeaderValue; 2] = [
     HeaderValue::from_static(ORIGIN[0]),
     HeaderValue::from_static(ORIGIN[1])
 ];
+
+pub static DEFAULT_USERNAME: &'static str = "agoines";
+pub static DEFAULT_PASSWORD: &'static str = "qwer1234";

@@ -12,6 +12,9 @@
 
 [data](src/data.rs) 一些自行配置的参数
 
+默认用户 agoines
+默认密码 qwer1234
+
 ### 对应的 HTTP 测试文件
 [货物的测试文件](good.http)
 

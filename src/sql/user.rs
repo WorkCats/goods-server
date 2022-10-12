@@ -1,5 +1,6 @@
 use sqlx::{sqlite::SqliteConnection, Sqlite, FromRow, Error};
 use serde::{Deserialize, Serialize};
+use crate::data::{DEFAULT_PASSWORD, DEFAULT_USERNAME};
 
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct User {
@@ -20,9 +21,10 @@ impl Clone for User {
 }
 
 async fn create_user(connect: &mut SqliteConnection) {
-    let table = sqlx::query::<Sqlite>("CREATE TABLE IF NOT EXISTS users(username text primary key,password text,is_administrator integer)")
+    let table = sqlx::query::<Sqlite>("CREATE TABLE IF NOT EXISTS users(username text primary key, password text, is_administrator integer)")
         .execute(connect)
         .await;
+
     match table {
         Ok(result) => {
             println!("create user: {:?}", result);
@@ -33,8 +35,19 @@ async fn create_user(connect: &mut SqliteConnection) {
     }
 }
 
+async fn into_default_user(connect: &mut SqliteConnection) {
+    sqlx::query::<Sqlite>("insert into users (username,password,is_administrator) values ( $1,$2,$3 )")
+        .bind(DEFAULT_USERNAME)
+        .bind(DEFAULT_PASSWORD)
+        .bind(true)
+        .execute(connect).await.expect("");
+}
+
 pub async fn insert_user(connect: &mut SqliteConnection, user: User) -> Result<bool, Error> {
     create_user(connect).await;
+    if get_all_user(connect).await.expect("").is_empty() {
+        into_default_user(connect).await;
+    };
     let sql = sqlx::query::<Sqlite>("insert into users (username,password,is_administrator) values ( $1,$2,$3 )")
         .bind(user.username)
         .bind(user.password)
@@ -52,6 +65,8 @@ pub async fn insert_user(connect: &mut SqliteConnection, user: User) -> Result<b
 
 
 pub async fn get_user(connect: &mut SqliteConnection, username: String) -> Result<User, Error> {
+    create_user(connect).await;
+    into_default_user(connect).await;
     return sqlx::query_as::<Sqlite, User>(
         "select * FROM users WHERE username = $1"
     ).bind(username)
@@ -66,14 +81,14 @@ pub async fn search_user(connect: &mut SqliteConnection, username: String) -> Re
     ).bind(username)
         .fetch_all(connect)
         .await;
-    return res
+    return res;
 }
 
 pub async fn get_all_user(connect: &mut SqliteConnection) -> Result<Vec<User>, Error> {
     create_user(connect).await;
     let sql = sqlx::query_as::<Sqlite, User>("SELECT * FROM users")
         .fetch_all(connect).await;
-    return sql
+    return sql;
 }
 
 pub async fn update_user(connect: &mut SqliteConnection, user: User) -> Result<bool, Error> {
