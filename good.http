@@ -4,7 +4,7 @@ Content-Type: application/json
 authorization:{{TOKEN}}
 
 {
-  "id": "请问",
+  "id": "13344",
   "name": "esp32",
   "size": 32,
   "user_name": "Agoines"
@@ -26,7 +26,7 @@ Content-Type: application/json
 authorization:{{TOKEN}}
 
 {
-  "good_name": "qw"
+  "good_name": ""
 }
 
 ### 获取货物列表
@@ -39,8 +39,8 @@ authorization:{{TOKEN}}
 Content-Type: application/json
 
 {
-  "id": "12",
-  "good_name": "esp86",
-  "size": 32,
+  "id": "13344",
+  "name": "esp86-air",
+  "size": 1,
   "user_name": "Agoines"
 }

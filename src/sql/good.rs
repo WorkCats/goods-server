@@ -39,7 +39,7 @@ pub async fn insert_good(connect: &mut SqliteConnection, good: Good) -> Result<b
 
 pub async fn update_good(connect: &mut SqliteConnection, good: Good) -> Result<bool, Error> {
     create_good(connect).await;
-    let sql = sqlx::query::<Sqlite>("UPDATE goods SET name = $2 size = $3,user_name = $4 WHERE ID = $1;")
+    let sql = sqlx::query::<Sqlite>("UPDATE goods SET name = $2, size = $3, user_name = $4 WHERE ID = $1;")
         .bind(good.id)
         .bind(good.name)
         .bind(good.size)
