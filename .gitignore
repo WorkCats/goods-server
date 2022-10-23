@@ -1,1 +1,7 @@
 /target
+## 对应的数据库文件
+/goods.sqlite
+## 对应 vue 生成文件
+/static/index.js
+/static/index.css
+

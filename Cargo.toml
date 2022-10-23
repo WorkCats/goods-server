@@ -14,14 +14,15 @@ panic = 'abort'
 [dependencies]
 lazy_static = "1.4.0"
 axum = { version = "0.5.16", default-features = false, features = ["json", "http1"] }
-
-tokio = { version = "1.0", default-features = false, features = ["macros"] }
+mime = { version = "0.3.16" }
+askama = { version = "0.11.1" }
+tokio = { version = "1.21.2", default-features = false, features = ["macros"] }
 
 sqlx = { version = "0.6.2", default-features = false, features = ["runtime-tokio-native-tls", "sqlite", "macros"] }
 
 #序列化
-serde = { version = "1.0.140", default-features = false, features = ["std", "derive"] }
+serde = { version = "1.0.147", default-features = false, features = ["std", "derive"] }
 #鉴权
 jsonwebtoken = { version = "8.1.1", default-features = false, features = ["default"] }
 
-tower-http = { version = "0.3.0", default-features = false, features = ["cors"] }
+tower-http = { version = "0.3.4", default-features = false, features = ["cors", "fs", "trace"] }

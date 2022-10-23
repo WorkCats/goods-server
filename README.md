@@ -15,6 +15,9 @@
 默认用户 agoines
 默认密码 qwer1234
 
+在 static 插入 vue 生成的 css 和 js 文件，
+命名为 index.css 和 index.js
+
 ### 对应的 HTTP 测试文件
 [货物的测试文件](good.http)
 
