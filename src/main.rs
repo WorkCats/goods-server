@@ -9,7 +9,8 @@ use axum::routing::{get};
 
 use askama::Template;
 use axum::http::{header, HeaderMap};
-use std::include_str;
+use std::{fs, include_str};
+use std::path::Path;
 use tower_http::cors::CorsLayer;
 
 use crate::data::{DOMAIN, ALLOW_ORIGIN};
@@ -19,6 +20,10 @@ use crate::route::{good_router, user_router};
 
 #[tokio::main]
 async fn main() {
+    let target_path = Path::new("./data");
+    if !target_path.exists() {
+        fs::create_dir("./data").expect("创建失败！！");
+    }
 
     let app = Router::new()
         .nest("/good", good_router())
