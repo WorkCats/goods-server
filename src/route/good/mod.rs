@@ -3,6 +3,7 @@ pub mod add_good;
 pub mod del_good;
 pub mod update_good;
 pub mod search_good;
+pub mod has_good;
 
 use serde::{Deserialize, Serialize};
 use sqlx::Error;
@@ -13,10 +14,9 @@ use crate::route::{
     SQL_CONNECT_ERRCODE,
     CLAIMS_ERRCODE
 };
-
 use crate::sql::good::Good;
 
-pub const NULL_GOOD_LIST: Vec<Good> = Vec::new();
+const NULL_GOOD_LIST: Vec<Good> = Vec::new();
 
 
 /// 在搜索和获取全部货物时使用
@@ -28,6 +28,13 @@ pub struct GoodListResult {
     good_list: Vec<Good>,
     errmsg: String,
     errcode: i8,
+}
+
+/// 在删除和查找对应文件是否存在时使用
+/// `good_id` 对应的货物 ID
+#[derive(Serialize, Deserialize)]
+pub struct GoodId {
+    good_id: String,
 }
 
 // GoodListResult 的 clone 实现
@@ -50,6 +57,7 @@ pub(crate) fn create_good_list_success_result(good_list: Vec<Good>) -> GoodListR
     };
 }
 
+/// 出现 Sql 问题时使用
 pub(crate) fn create_good_list_result_sql_err(err_msg: Error) -> GoodListResult {
     let errmsg = err_msg.to_string();
     return GoodListResult {
@@ -59,6 +67,7 @@ pub(crate) fn create_good_list_result_sql_err(err_msg: Error) -> GoodListResult 
     };
 }
 
+/// Claims 出现问题时使用
 pub(crate) fn create_good_list_result_claims_err(errmsg: String) -> GoodListResult {
     return GoodListResult {
         good_list: NULL_GOOD_LIST,
@@ -67,6 +76,7 @@ pub(crate) fn create_good_list_result_claims_err(errmsg: String) -> GoodListResu
     };
 }
 
+/// sql connect 出现问题时使用
 pub(crate) fn create_good_list_result_sql_connect_err(errmsg: String) -> GoodListResult {
     return GoodListResult {
         good_list: NULL_GOOD_LIST,

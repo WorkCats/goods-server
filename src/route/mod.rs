@@ -14,12 +14,13 @@ use crate::route::good::{
     del_good::del_good,
     update_good::update_good,
     search_good::search_good,
+    has_good::has_good
 };
 use crate::route::user::{
     login::login,
     signup::signup,
     autologin::autologin,
-    del_user::del_user,
+    del_user::del_user
 };
 use crate::route::user::get_goods::get_goods;
 use crate::route::user::get_user_list::get_user_list;
@@ -53,6 +54,12 @@ static SUCCESS_STR: &'static str = "";
 
 // 在 SQL 语句出错时所需错误
 static SQL_ERRCODE: i8 = 1;
+fn create_text_result_success(errmsg: String) -> TextResult {
+    return TextResult {
+        errmsg,
+        errcode: SQL_ERRCODE,
+    };
+}
 
 /// 在 SQL 语句发生错误时调用
 /// `err_msg` 错误信息
@@ -114,7 +121,8 @@ pub(super) fn good_router() -> Router {
         .route("/getGoodList", post(get_good_list))
         .route("/delGood", post(del_good))
         .route("/updateGood", post(update_good))
-        .route("/searchGood", post(search_good));
+        .route("/searchGood", post(search_good))
+        .route("/hasGood", post(has_good));
 }
 
 /// user 对应的路由

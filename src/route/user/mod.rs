@@ -1,14 +1,3 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-use jsonwebtoken::{encode, EncodingKey, Header};
-use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
-use sqlx::Error;
-use crate::claims::Claims;
-use crate::data::DECODING_KEY;
-use crate::route::{CLAIMS_ERRCODE, SQL_CONNECT_ERRCODE, SQL_ERRCODE, SUCCESS_CODE, SUCCESS_STR, ADMINISTRATOR_STR, ADMINISTRATOR_ERRCODE};
-use crate::sql::user::User;
-use crate::route::user::login::LoginUser;
-
 pub mod signup;
 pub mod login;
 pub mod autologin;
@@ -20,7 +9,18 @@ pub mod get_username_list;
 pub mod get_goods;
 pub mod is_administrator;
 
-pub const NULL_USER_LIST: Vec<User> = Vec::new();
+use std::time::{SystemTime, UNIX_EPOCH};
+use jsonwebtoken::{encode, EncodingKey, Header};
+use lazy_static::lazy_static;
+use serde::{Deserialize, Serialize};
+use sqlx::Error;
+use crate::claims::Claims;
+use crate::data::DECODING_KEY;
+use crate::route::{CLAIMS_ERRCODE, SQL_CONNECT_ERRCODE, SQL_ERRCODE, SUCCESS_CODE, SUCCESS_STR, ADMINISTRATOR_STR, ADMINISTRATOR_ERRCODE};
+use crate::sql::user::User;
+use crate::route::user::login::LoginUser;
+
+const NULL_USER_LIST: Vec<User> = Vec::new();
 
 #[derive(Serialize, Deserialize)]
 pub struct UserName {

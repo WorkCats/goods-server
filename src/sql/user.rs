@@ -26,9 +26,7 @@ async fn create_user(connection: &mut SqliteConnection) {
         .await;
 
     match table {
-        Ok(result) => {
-            println!("create user: {:?}", result);
-        }
+        Ok(_) => {}
         Err(err) => {
             println!("create user err message: {:?}", err);
         }

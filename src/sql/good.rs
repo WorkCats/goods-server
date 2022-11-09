@@ -3,10 +3,10 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, sqlx::FromRow, Clone)]
 pub struct Good {
-    pub id: String,
-    pub name: String,
-    pub size: i64,
-    pub user_name: String,
+    id: String,
+    name: String,
+    size: u32,
+    user_name: String,
 }
 
 async fn create_good(connection: &mut SqliteConnection) {
@@ -39,7 +39,7 @@ pub async fn insert_good(connection: &mut SqliteConnection, good: Good) -> Resul
 
 pub async fn update_good(connection: &mut SqliteConnection, good: Good) -> Result<bool, Error> {
     create_good(connection).await;
-    let sql = sqlx::query::<Sqlite>("UPDATE goods SET name = $2, size = $3, user_name = $4 WHERE ID = $1;")
+    let sql = sqlx::query::<Sqlite>("UPDATE goods SET name = $2, size = $3, user_name = $4 WHERE id = $1;")
         .bind(good.id)
         .bind(good.name)
         .bind(good.size)
@@ -83,7 +83,7 @@ pub async fn get_all_good(connection: &mut SqliteConnection) -> Result<Vec<Good>
 
 pub async fn delete_good(connection: &mut SqliteConnection, id: String) -> Result<bool, Error> {
     create_good(connection).await;
-    let sql = sqlx::query::<Sqlite>("DELETE FROM goods WHERE ID = $1")
+    let sql = sqlx::query::<Sqlite>("DELETE FROM goods WHERE id = $1")
         .bind(id)
         .execute(connection).await;
     return match sql {
@@ -95,3 +95,17 @@ pub async fn delete_good(connection: &mut SqliteConnection, id: String) -> Resul
         }
     };
 }
+pub async fn select_good_has(connection: &mut SqliteConnection, id: String) -> Result<bool, Error>{
+    let sql = sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE id = $1")
+        .bind(id)
+        .fetch_all(connection).await;
+    return match sql {
+        Ok(s) => {
+            Ok(!s.is_empty())
+        }
+        Err(err) => {
+            Err(err)
+        }
+    };
+}
+

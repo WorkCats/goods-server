@@ -44,3 +44,12 @@ Content-Type: application/json
   "size": 1,
   "user_name": "Agoines"
 }
+
+### 判断货物是否存在
+POST {{Domain}}/good/hasGood
+Content-Type: application/json
+authorization:{{TOKEN}}
+
+{
+  "good_id": "13344"
+}

@@ -16,7 +16,7 @@ Content-Type: application/json
 {
     id: String,
     name: String,
-    size: i64,
+    size: u32,
     user_name: String
 }
 ```
@@ -101,7 +101,7 @@ Content-Type: application/json
 {
     id: String,
     name: String,
-    size: i64,
+    size: u32,
     user_name: String
 }
 ```
