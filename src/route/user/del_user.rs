@@ -8,7 +8,7 @@ use crate::sql::{
 use crate::route::{user::UserName, create_text_result_claims_err, create_text_result_sql_err, TEXT_RESULT_ADMINISTRATOR_ERRCODE, TEXT_SUCCESS_RESULT, TextResult, create_text_result_sql_connect_err};
 
 
-pub async fn del_user(headers: HeaderMap, Json(del_user): Json<UserName>) -> Json<TextResult> {
+pub(in crate::route) async fn del_user(headers: HeaderMap, Json(del_user): Json<UserName>) -> Json<TextResult> {
     return Json(
         match sql_connect().await {
             Ok(mut conn) =>  match claims_get_user(headers, &mut conn).await {

@@ -36,7 +36,7 @@ async fn create_user(connect: &mut SqliteConnection) {
 }
 
 async fn into_default_user(connect: &mut SqliteConnection) {
-    let _ = sqlx::query::<Sqlite>("insert into users (username,password,is_administrator) values ( $1,$2,$3 )")
+    let _ = sqlx::query::<Sqlite>("INSERT INTO users (username,password,is_administrator) values ( $1,$2,$3 )")
         .bind(DEFAULT_USERNAME)
         .bind(DEFAULT_PASSWORD)
         .bind(true)
@@ -51,7 +51,7 @@ pub async fn insert_user(connect: &mut SqliteConnection, user: User) -> Result<b
         }
         Err(_) => {}
     }
-    let sql = sqlx::query::<Sqlite>("insert into users (username,password,is_administrator) values ( $1,$2,$3 )")
+    let sql = sqlx::query::<Sqlite>("INSERT INTO users (username,password,is_administrator) values ( $1,$2,$3 )")
         .bind(user.username)
         .bind(user.password)
         .bind(user.is_administrator)
@@ -71,7 +71,7 @@ pub async fn get_user(connect: &mut SqliteConnection, username: String) -> Resul
     create_user(connect).await;
     into_default_user(connect).await;
     return sqlx::query_as::<Sqlite, User>(
-        "select * FROM users WHERE username = $1"
+        "SELECT * FROM users WHERE username = $1"
     ).bind(username)
         .fetch_one(connect)
         .await;
@@ -80,7 +80,7 @@ pub async fn get_user(connect: &mut SqliteConnection, username: String) -> Resul
 pub async fn search_user(connect: &mut SqliteConnection, username: String) -> Result<Vec<User>, Error> {
     let username = "%".to_owned() + username.as_str() + "%";
     let res = sqlx::query_as::<Sqlite, User>(
-        "select * FROM users WHERE username LIKE $1"
+        "SELECT * FROM users WHERE username LIKE $1"
     ).bind(username)
         .fetch_all(connect)
         .await;

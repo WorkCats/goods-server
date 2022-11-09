@@ -5,7 +5,7 @@ use crate::sql::{sqlite_util::sql_connect, user, user::User};
 use crate::route::{create_text_result_claims_err, create_text_result_sql_connect_err, create_text_result_sql_err, TEXT_RESULT_ADMINISTRATOR_ERRCODE, TEXT_SUCCESS_RESULT, TextResult};
 
 
-pub async fn update_user(headers: HeaderMap, Json(user): Json<User>) -> Json<TextResult> {
+pub(in crate::route) async fn update_user(headers: HeaderMap, Json(user): Json<User>) -> Json<TextResult> {
     return Json(match sql_connect().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(login_user) => if login_user.is_administrator {

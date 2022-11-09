@@ -22,7 +22,7 @@ fn create_auto_login_success_result(
     };
 }
 
-pub fn create_administrator_result_sql_connect_err(errmsg: String) -> AdministratorResult {
+fn create_administrator_result_sql_connect_err(errmsg: String) -> AdministratorResult {
     return AdministratorResult {
         is_administrator: false,
         errmsg,
@@ -38,7 +38,7 @@ fn create_administrator_result_claims_err(errmsg: String) -> AdministratorResult
     };
 }
 
-pub async fn is_administrator(headers: HeaderMap) -> Json<AdministratorResult> {
+pub(in crate::route) async fn is_administrator(headers: HeaderMap) -> Json<AdministratorResult> {
     return Json(match sql_connect().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(user) => create_auto_login_success_result(user.is_administrator),

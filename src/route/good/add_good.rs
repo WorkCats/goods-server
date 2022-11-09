@@ -12,7 +12,7 @@ use crate::route::{
     TEXT_SUCCESS_RESULT,
     TextResult};
 
-pub async fn add_good(headers: HeaderMap, Json(good): Json<Good>) -> Json<TextResult> {
+pub(in crate::route) async fn add_good(headers: HeaderMap, Json(good): Json<Good>) -> Json<TextResult> {
     return Json(match sql_connect().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(_) => match insert_good(&mut conn, good).await {

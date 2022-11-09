@@ -28,10 +28,10 @@ use crate::route::user::is_administrator::is_administrator;
 use crate::route::user::search_user::search_user;
 use crate::route::user::update_user::update_user;
 
-/**
- * TextResult 是在客户端与服务端交互，不需要返回数据时使用的结构体
- * 告诉客户端本次结果如果
- */
+/// TextResult 是在客户端与服务端交互，不需要返回数据时使用的结构体
+/// 告诉客户端本次结果，如果未发生错误 errcode = 0, errmsg = ""
+/// 反之则会有对应的错误内容
+
 #[derive(Serialize, Deserialize)]
 pub struct TextResult {
     errmsg: String,
@@ -46,13 +46,16 @@ impl Clone for TextResult {
         }
     }
 }
-// 成功时 CODE
-pub static SUCCESS_CODE: i8 = 0;
+
+// 成功时的 CODE
+static SUCCESS_CODE: i8 = 0;
 static SUCCESS_STR: &'static str = "";
 
 // 在 SQL 语句出错时所需错误
-pub static SQL_ERRCODE: i8 = 1;
+static SQL_ERRCODE: i8 = 1;
 
+/// 在 SQL 语句发生错误时调用
+/// `err_msg` 错误信息
 fn create_text_result_sql_err(err_msg: Error) -> TextResult {
     let errmsg = err_msg.to_string();
     return TextResult {
@@ -60,9 +63,12 @@ fn create_text_result_sql_err(err_msg: Error) -> TextResult {
         errcode: SQL_ERRCODE,
     };
 }
-// 在 CLAIMS 检测时时所需错误
-pub static CLAIMS_ERRCODE: i8 = 2;
 
+// 在 CLAIMS 检测时所需错误
+static CLAIMS_ERRCODE: i8 = 2;
+
+/// 在 CLAIMS 检测时发生错误时被调用
+/// `err_msg` 错误信息
 fn create_text_result_claims_err(errmsg: String) -> TextResult {
     return TextResult {
         errmsg,
@@ -71,36 +77,38 @@ fn create_text_result_claims_err(errmsg: String) -> TextResult {
 }
 
 // 在 SQL 连接出现问题时所需错误
-pub static SQL_CONNECT_ERRCODE: i8 = 3;
+static SQL_CONNECT_ERRCODE: i8 = 3;
 
-fn create_text_result_sql_connect_err(errmsg: String)-> TextResult{
+/// 在 SQL 连接出现问题时被调用
+/// `err_msg` 错误信息
+fn create_text_result_sql_connect_err(errmsg: String) -> TextResult {
     return TextResult {
         errmsg,
         errcode: CLAIMS_ERRCODE,
     };
 }
+
 // 在需要判断时候管理员时所需错误
-pub static ADMINISTRATOR_ERRCODE: i8 = 4;
-pub static ADMINISTRATOR_STR: &'static str = "您不是管理员，喵";
+static ADMINISTRATOR_ERRCODE: i8 = 4;
+static ADMINISTRATOR_STR: &'static str = "您不是管理员，喵";
 
 // 因为部分为常量，所以如此写
 lazy_static! {
-
-    pub static ref TEXT_SUCCESS_RESULT: TextResult = TextResult{
+    /// 在删除，更新等模块执行成功时返回的内容
+     static ref TEXT_SUCCESS_RESULT: TextResult = TextResult{
         errmsg: SUCCESS_STR.to_string(),
         errcode: SUCCESS_CODE
     };
 
-    pub static ref TEXT_RESULT_ADMINISTRATOR_ERRCODE: TextResult = TextResult{
+    /// 非管理员权限
+    static ref TEXT_RESULT_ADMINISTRATOR_ERRCODE: TextResult = TextResult{
         errmsg: ADMINISTRATOR_STR.to_string(),
         errcode: ADMINISTRATOR_ERRCODE
     };
-
 }
 
-
-
-pub fn good_router() -> Router {
+/// good 对应的路由
+pub(super) fn good_router() -> Router {
     return Router::new()
         .route("/addGood", post(add_good))
         .route("/getGoodList", post(get_good_list))
@@ -109,7 +117,8 @@ pub fn good_router() -> Router {
         .route("/searchGood", post(search_good));
 }
 
-pub fn user_router() -> Router {
+/// user 对应的路由
+pub(super) fn user_router() -> Router {
     return Router::new()
         .route("/login", post(login))
         .route("/signup", post(signup))

@@ -8,7 +8,7 @@ use sqlx::SqliteConnection;
 use crate::data::DECODING_KEY;
 use crate::sql::user::{get_user, User};
 
-/// 我们的声言结构型, 需要由`Serialize` 或 `Deserialize`派生
+/// 我们的声言结构型, 需要由`Serialize` 或 `Deserialize` 派生
 #[derive(Serialize, Deserialize)]
 pub struct Claims {
     // 必需品

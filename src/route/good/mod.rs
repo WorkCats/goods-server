@@ -18,17 +18,19 @@ use crate::sql::good::Good;
 
 pub const NULL_GOOD_LIST: Vec<Good> = Vec::new();
 
-#[derive(Serialize, Deserialize)]
-pub struct GoodName {
-    good_name: String,
-}
 
+/// 在搜索和获取全部货物时使用
+/// `good_list` 货物列表
+/// `errmsg` 错误日志
+/// `errcode` 错误类型，用与判断那些内容是错误的
 #[derive(Serialize, Deserialize)]
 pub struct GoodListResult {
     good_list: Vec<Good>,
     errmsg: String,
     errcode: i8,
 }
+
+// GoodListResult 的 clone 实现
 impl Clone for GoodListResult{
     fn clone(&self) -> GoodListResult {
         GoodListResult {
@@ -39,7 +41,7 @@ impl Clone for GoodListResult{
     }
 }
 
-
+/// 成功请求时使用
 pub(crate) fn create_good_list_success_result(good_list: Vec<Good>) -> GoodListResult {
     return GoodListResult {
         good_list,

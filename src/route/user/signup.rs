@@ -8,7 +8,7 @@ use crate::sql::{
 use crate::route::{create_text_result_claims_err, create_text_result_sql_connect_err, create_text_result_sql_err, TEXT_RESULT_ADMINISTRATOR_ERRCODE, TEXT_SUCCESS_RESULT, TextResult};
 
 
-pub async fn signup(headers: HeaderMap, Json(signup_user): Json<User>) -> Json<TextResult> {
+pub(in crate::route) async fn signup(headers: HeaderMap, Json(signup_user): Json<User>) -> Json<TextResult> {
     return Json(match sql_connect().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(login_user) =>

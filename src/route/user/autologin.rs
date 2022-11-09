@@ -33,14 +33,13 @@ fn create_auto_login_result_claims_err(errmsg: String) -> UserResult {
 static AUTO_LOGIN_ERRCODE: i8 = 8;
 static AUTO_LOGIN_STR: &'static str = "并非永久登录账户";
 lazy_static! {
-
     static ref USER_RESULT_AUTO_LOGIN_ERR:UserResult = UserResult {
         token: NULL_TOKEN.to_string(),
         errmsg: AUTO_LOGIN_STR.to_string(),
         errcode:AUTO_LOGIN_ERRCODE
     };
 }
-pub async fn autologin(headers: HeaderMap) -> Json<UserResult> {
+pub(in crate::route) async fn autologin(headers: HeaderMap) -> Json<UserResult> {
     let headers_clone = headers.clone();
     return Json(
         match sql_connect().await {

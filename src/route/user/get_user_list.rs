@@ -5,7 +5,7 @@ use crate::sql::sqlite_util::sql_connect;
 use crate::sql::user::get_all_user;
 
 
-pub async fn get_user_list(headers: HeaderMap) -> Json<UserListResult> {
+pub(in crate::route) async fn get_user_list(headers: HeaderMap) -> Json<UserListResult> {
     return Json(match sql_connect().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(login_user) => if login_user.is_administrator {

@@ -7,7 +7,7 @@ use crate::route::user::{create_user_list_result_claims_err, create_user_list_re
 use crate::sql::user;
 
 
-pub async fn search_user(headers: HeaderMap, Json(user): Json<UserName>) -> Json<UserListResult> {
+pub(in crate::route) async fn search_user(headers: HeaderMap, Json(user): Json<UserName>) -> Json<UserListResult> {
     return Json(match sql_connect().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(login_user) => if login_user.is_administrator {

@@ -8,7 +8,7 @@ use crate::sql::{
 use crate::route::good::{create_good_list_result_claims_err, create_good_list_result_sql_err, create_good_list_success_result, create_good_list_result_sql_connect_err, GoodListResult};
 use crate::route::user::UserName;
 
-pub async fn get_goods(headers: HeaderMap, Json(user): Json<UserName>) -> Json<GoodListResult> {
+pub(in crate::route) async fn get_goods(headers: HeaderMap, Json(user): Json<UserName>) -> Json<GoodListResult> {
     return Json(match sql_connect().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(_) => match select_good_with_user(&mut conn, user.username).await {

@@ -49,7 +49,7 @@ fn create_user_name_list_result_sql_connect_err(errmsg: String) -> UserNameListR
     };
 }
 
-pub async fn get_username_list(headers: HeaderMap) -> Json<UserNameListResult> {
+pub(in crate::route) async fn get_username_list(headers: HeaderMap) -> Json<UserNameListResult> {
     return Json(match sql_connect().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(_) => match get_all_user(&mut conn).await {

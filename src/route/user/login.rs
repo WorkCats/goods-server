@@ -47,13 +47,13 @@ fn create_user_result_token_err(errmsg: String) -> UserResult {
 }
 
 // 密码出问题出现问题
-pub static PASSWORD_ERRCODE: i8 = 6;
-pub static PASSWORD_STR: &'static str = "当前账户或者密码出现问题了，喵";
+static PASSWORD_ERRCODE: i8 = 6;
+static PASSWORD_STR: &'static str = "当前账户或者密码出现问题了，喵";
 // 当前用户不存在
-pub static USERNAME_ERRCODE: i8 = 7;
-pub static USERNAME_STR: &'static str = "当前用户名不存在";
+static USERNAME_ERRCODE: i8 = 7;
+static USERNAME_STR: &'static str = "当前用户名不存在";
 
-pub fn create_user_result_sql_connect_err(errmsg: String) -> UserResult {
+pub(crate) fn create_user_result_sql_connect_err(errmsg: String) -> UserResult {
     return UserResult {
         token: NULL_TOKEN.to_string(),
         errmsg,
@@ -74,7 +74,7 @@ lazy_static! {
     };
 }
 
-pub async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
+pub(in crate::route) async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
     let clone_user = login_user.clone();
     return Json(match sql_connect().await {
         // clone 对应用户
