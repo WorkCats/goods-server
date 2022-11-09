@@ -9,7 +9,7 @@ use crate::route::{
 };
 use crate::route::user::{NULL_TOKEN, token_from_user, UserResult};
 use crate::route::user::login::{create_user_result_sql_connect_err, LoginUser};
-use crate::sql::sqlite_util::sql_connect;
+use crate::sql::sqlite_util::sql_connection;
 
 fn create_auto_login_success_result(
     token: String,
@@ -39,10 +39,11 @@ lazy_static! {
         errcode:AUTO_LOGIN_ERRCODE
     };
 }
+
 pub(in crate::route) async fn autologin(headers: HeaderMap) -> Json<UserResult> {
     let headers_clone = headers.clone();
     return Json(
-        match sql_connect().await {
+        match sql_connection().await {
             Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
                 Ok(user) => match claims_get_autologin(headers_clone).await {
                     Ok(auto_login) => {

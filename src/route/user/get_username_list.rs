@@ -4,7 +4,7 @@ use sqlx::Error;
 use crate::claims::{claims_get_user};
 use crate::route::{CLAIMS_ERRCODE, SQL_CONNECT_ERRCODE, SQL_ERRCODE, SUCCESS_CODE, SUCCESS_STR};
 
-use crate::sql::sqlite_util::sql_connect;
+use crate::sql::sqlite_util::sql_connection;
 use crate::sql::user::get_all_user;
 
 pub const NULL_USERNAME_LIST: Vec<String> = Vec::new();
@@ -50,7 +50,7 @@ fn create_user_name_list_result_sql_connect_err(errmsg: String) -> UserNameListR
 }
 
 pub(in crate::route) async fn get_username_list(headers: HeaderMap) -> Json<UserNameListResult> {
-    return Json(match sql_connect().await {
+    return Json(match sql_connection().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(_) => match get_all_user(&mut conn).await {
                 Ok(user_list) => {

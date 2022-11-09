@@ -3,7 +3,7 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use crate::claims::claims_get_user;
 use crate::route::{CLAIMS_ERRCODE, SQL_CONNECT_ERRCODE, SUCCESS_CODE, SUCCESS_STR};
-use crate::sql::sqlite_util::sql_connect;
+use crate::sql::sqlite_util::sql_connection;
 
 #[derive(Serialize, Deserialize)]
 pub struct AdministratorResult {
@@ -39,7 +39,7 @@ fn create_administrator_result_claims_err(errmsg: String) -> AdministratorResult
 }
 
 pub(in crate::route) async fn is_administrator(headers: HeaderMap) -> Json<AdministratorResult> {
-    return Json(match sql_connect().await {
+    return Json(match sql_connection().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(user) => create_auto_login_success_result(user.is_administrator),
             Err(err) => create_administrator_result_claims_err(err.to_string())

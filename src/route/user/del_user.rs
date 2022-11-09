@@ -3,14 +3,14 @@ use axum::{http::HeaderMap, Json};
 use crate::claims::claims_get_user;
 use crate::sql::{
     user::delete_user,
-    sqlite_util::sql_connect,
+    sqlite_util::sql_connection,
 };
 use crate::route::{user::UserName, create_text_result_claims_err, create_text_result_sql_err, TEXT_RESULT_ADMINISTRATOR_ERRCODE, TEXT_SUCCESS_RESULT, TextResult, create_text_result_sql_connect_err};
 
 
 pub(in crate::route) async fn del_user(headers: HeaderMap, Json(del_user): Json<UserName>) -> Json<TextResult> {
     return Json(
-        match sql_connect().await {
+        match sql_connection().await {
             Ok(mut conn) =>  match claims_get_user(headers, &mut conn).await {
                 Ok(login_user) =>
                     if login_user.is_administrator {

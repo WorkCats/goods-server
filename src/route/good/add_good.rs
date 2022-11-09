@@ -3,7 +3,7 @@ use crate::claims::claims_get_user;
 
 use crate::sql::{
     good::{insert_good, Good},
-    sqlite_util::sql_connect,
+    sqlite_util::sql_connection,
 };
 use crate::route::{
     create_text_result_claims_err,
@@ -13,7 +13,7 @@ use crate::route::{
     TextResult};
 
 pub(in crate::route) async fn add_good(headers: HeaderMap, Json(good): Json<Good>) -> Json<TextResult> {
-    return Json(match sql_connect().await {
+    return Json(match sql_connection().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             Ok(_) => match insert_good(&mut conn, good).await {
                 Ok(_) => TEXT_SUCCESS_RESULT.clone(),

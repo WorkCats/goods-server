@@ -20,7 +20,8 @@ pub struct Claims {
     pub password: String,
 }
 
-
+/// 从请求中提取 token
+/// `headers` 请求头
 fn get_cookies(headers: HeaderMap) -> String {
     return headers.get(AUTHORIZATION)
         .and_then(|v| v.to_str().ok())
@@ -28,6 +29,8 @@ fn get_cookies(headers: HeaderMap) -> String {
         .unwrap_or("".to_string());
 }
 
+/// 判断是否当前 token 是否是自动登录
+/// `headers` 请求头
 pub async fn claims_get_autologin(headers: HeaderMap) -> Result<bool, Error> {
     let cookies = get_cookies(headers);
     let claims = decode::<Claims>(
@@ -45,7 +48,10 @@ pub async fn claims_get_autologin(headers: HeaderMap) -> Result<bool, Error> {
     }
 }
 
-pub async fn claims_get_user(headers: HeaderMap, connect: &mut SqliteConnection) -> Result<User, String> {
+/// 获取对应用户的请求头
+/// `headers` 请求头
+/// `connection` 为 SqliteConnection
+pub async fn claims_get_user(headers: HeaderMap, connection: &mut SqliteConnection) -> Result<User, String> {
     let cookies = get_cookies(headers);
 
     let claims = decode::<Claims>(
@@ -55,7 +61,7 @@ pub async fn claims_get_user(headers: HeaderMap, connect: &mut SqliteConnection)
     );
     match claims {
         Ok(claims) => {
-            match get_user(connect, claims.claims.username).await {
+            match get_user(connection, claims.claims.username).await {
                 Ok(user) => if user.password == claims.claims.password {
                     Ok(user)
                 } else {

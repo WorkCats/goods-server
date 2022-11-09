@@ -4,7 +4,7 @@ use crate::claims::{claims_get_user};
 
 use crate::sql::{
     good::select_good,
-    sqlite_util::sql_connect,
+    sqlite_util::sql_connection,
 };
 use crate::route::good::{create_good_list_result_claims_err, create_good_list_result_sql_err, create_good_list_success_result, create_good_list_result_sql_connect_err, GoodListResult};
 
@@ -18,7 +18,7 @@ pub struct GoodName {
 /// `headers` 请求头，获取请求头的 token 用于校验
 /// `Json(good)` 对请求中的 json 进行反序列化
 pub(in crate::route) async fn search_good(headers: HeaderMap, Json(good): Json<GoodName>) -> Json<GoodListResult> {
-    return Json(match sql_connect().await {
+    return Json(match sql_connection().await {
         Ok(mut conn) => match claims_get_user(headers, &mut conn).await {
             // 在数据库中进行搜索
             Ok(_) => match select_good(&mut conn, good.good_name).await {

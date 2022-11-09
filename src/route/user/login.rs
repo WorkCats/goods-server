@@ -3,7 +3,7 @@ use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
 use crate::sql::{
-    sqlite_util::sql_connect,
+    sqlite_util::sql_connection,
     user::get_user,
 };
 use crate::route::{SUCCESS_CODE, SUCCESS_STR, SQL_CONNECT_ERRCODE};
@@ -76,7 +76,7 @@ lazy_static! {
 
 pub(in crate::route) async fn login(Json(login_user): Json<LoginUser>) -> Json<UserResult> {
     let clone_user = login_user.clone();
-    return Json(match sql_connect().await {
+    return Json(match sql_connection().await {
         // clone 对应用户
 
         Ok(mut conn) => match get_user(&mut conn, login_user.username).await {
