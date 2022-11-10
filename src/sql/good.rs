@@ -95,13 +95,28 @@ pub async fn delete_good(connection: &mut SqliteConnection, id: String) -> Resul
         }
     };
 }
-pub async fn select_good_has(connection: &mut SqliteConnection, id: String) -> Result<bool, Error>{
+
+pub async fn select_good_has(connection: &mut SqliteConnection, id: String) -> Result<bool, Error> {
     let sql = sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE id = $1")
         .bind(id)
         .fetch_all(connection).await;
     return match sql {
         Ok(s) => {
             Ok(!s.is_empty())
+        }
+        Err(err) => {
+            Err(err)
+        }
+    };
+}
+
+pub async fn get_good_by_id(connection: &mut SqliteConnection, id: String) -> Result<Good, Error> {
+    let sql = sqlx::query_as::<Sqlite, Good>("SELECT * FROM goods WHERE id = $1")
+        .bind(id)
+        .fetch_one(connection).await;
+    return match sql {
+        Ok(good) => {
+            Ok(good)
         }
         Err(err) => {
             Err(err)

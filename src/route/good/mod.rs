@@ -4,6 +4,7 @@ pub mod del_good;
 pub mod update_good;
 pub mod search_good;
 pub mod has_good;
+pub mod get_good;
 
 use serde::{Deserialize, Serialize};
 use sqlx::Error;

@@ -53,3 +53,12 @@ authorization:{{TOKEN}}
 {
   "good_id": "13344"
 }
+
+### 获取货物
+POST {{Domain}}/good/getGoodById
+Content-Type: application/json
+authorization:{{TOKEN}}
+
+{
+  "good_id": "133"
+}

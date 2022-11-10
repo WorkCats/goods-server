@@ -167,7 +167,7 @@ Content-Type: application/json
 
 # 更新用户
 
-https://DOMAIN/user/updateUse
+https://DOMAIN/user/updateUser                    
 
 `post`
 

@@ -1,16 +1,16 @@
+# axum 所需，正常的 rust 无法正常编译
 ARG BASE_IMAGE=ekidd/rust-musl-builder:latest
 
-# Our first FROM statement declares the build environment.
 FROM ${BASE_IMAGE} AS builder
 
-# Add our source code.
 ADD --chown=rust:rust . ./
 
-# Build our application.
 RUN cargo build --release
 RUN strip -s /home/rust/src/target/x86_64-unknown-linux-musl/release/goods-server
 
 FROM alpine:latest
+
+# 不使用缓存
 RUN apk --no-cache add ca-certificates
 
 COPY --from=builder \
@@ -19,4 +19,5 @@ COPY --from=builder \
 
 WORKDIR /usr/local/bin/
 
+# 设置工作目录
 CMD /usr/local/bin/goods-server

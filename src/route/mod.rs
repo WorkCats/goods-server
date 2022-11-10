@@ -16,6 +16,7 @@ use crate::route::good::{
     search_good::search_good,
     has_good::has_good
 };
+use crate::route::good::get_good::get_good;
 use crate::route::user::{
     login::login,
     signup::signup,
@@ -57,7 +58,7 @@ static SQL_ERRCODE: i8 = 1;
 fn create_text_result_success(errmsg: String) -> TextResult {
     return TextResult {
         errmsg,
-        errcode: SQL_ERRCODE,
+        errcode: SUCCESS_CODE,
     };
 }
 
@@ -122,7 +123,8 @@ pub(super) fn good_router() -> Router {
         .route("/delGood", post(del_good))
         .route("/updateGood", post(update_good))
         .route("/searchGood", post(search_good))
-        .route("/hasGood", post(has_good));
+        .route("/hasGood", post(has_good))
+        .route("/getGoodById", post(get_good));
 }
 
 /// user 对应的路由
